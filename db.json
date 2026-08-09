@@ -1,0 +1,123 @@
+{
+  "tasks": [
+    {
+      "id": "1",
+      "customerName": "Somchai P.",
+      "serviceType": "video_call",
+      "symptom": "Persistent dry cough for 5 days",
+      "status": "new",
+      "createdAt": "2026-08-09T09:12:00.000Z"
+    },
+    {
+      "id": "2",
+      "customerName": "Anong W.",
+      "serviceType": "video_call",
+      "symptom": "Chest pain, shortness of breath",
+      "status": "in_progress",
+      "createdAt": "2026-08-09T08:45:00.000Z"
+    },
+    {
+      "id": "3",
+      "customerName": "Kittipong S.",
+      "serviceType": "chat",
+      "symptom": "Refill request for blood pressure medication",
+      "status": "completed",
+      "createdAt": "2026-08-08T14:20:00.000Z"
+    },
+    {
+      "id": "4",
+      "customerName": "Malee T.",
+      "serviceType": "voice_call",
+      "symptom": "Skin rash after starting new antibiotic",
+      "status": "new",
+      "createdAt": "2026-08-09T10:03:00.000Z"
+    },
+    {
+      "id": "5",
+      "customerName": "Prasert K.",
+      "serviceType": "video_call",
+      "symptom": "Follow-up on diabetes management plan",
+      "status": "in_progress",
+      "createdAt": "2026-08-09T07:30:00.000Z"
+    },
+    {
+      "id": "6",
+      "customerName": "Wanida C.",
+      "serviceType": "chat",
+      "symptom": "Question about drug interaction with ibuprofen",
+      "status": "completed",
+      "createdAt": "2026-08-07T16:55:00.000Z"
+    },
+    {
+      "id": "7",
+      "customerName": null,
+      "serviceType": "voice_call",
+      "symptom": "Headache and dizziness since yesterday",
+      "status": "new",
+      "createdAt": "2026-08-09T11:18:00.000Z"
+    },
+    {
+      "id": "8",
+      "customerName": "Niran D.",
+      "serviceType": "phone_call",
+      "symptom": "Mild fever, requesting dosage advice",
+      "status": "new",
+      "createdAt": "2026-08-09T06:47:00.000Z"
+    },
+    {
+      "id": "9",
+      "customerName": "Suda R.",
+      "serviceType": "video_call",
+      "symptom": "Follow-up consultation",
+      "status": "pending_review",
+      "createdAt": "2026-08-08T09:00:00.000Z"
+    },
+    {
+      "id": "10",
+      "customerName": "Boonmee L.",
+      "serviceType": "chat",
+      "symptom": "",
+      "status": "new",
+      "createdAt": "2026-08-09T12:41:00.000Z"
+    },
+    {
+      "id": "11",
+      "customerName": "Kanya H.",
+      "serviceType": "voice_call",
+      "symptom": "Nausea after taking prescribed medication",
+      "status": "in_progress",
+      "createdAt": "not-a-real-date"
+    },
+    {
+      "id": "12",
+      "customerName": "Pornchai N.",
+      "serviceType": "video_call",
+      "symptom": "Review of lab results",
+      "status": "completed",
+      "createdAt": "2026-08-06T13:10:00.000Z"
+    },
+    {
+      "id": "13",
+      "customerName": "Areeya B.",
+      "serviceType": "chat",
+      "symptom": "Question about missed dose",
+      "status": "new"
+    },
+    {
+      "id": "1",
+      "customerName": "Somchai P.",
+      "serviceType": "video_call",
+      "symptom": "Duplicate record with same id as task 1",
+      "status": "completed",
+      "createdAt": "2026-08-05T10:00:00.000Z"
+    },
+    {
+      "id": "14",
+      "customerName": "Thawee V.",
+      "serviceType": "video_call",
+      "symptom": "Persistent migraine, requesting prescription review",
+      "status": "new",
+      "createdAt": "2026-08-09T13:05:00.000Z"
+    }
+  ]
+}
