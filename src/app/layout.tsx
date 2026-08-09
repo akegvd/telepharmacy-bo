@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Providers } from "./providers";
+import { AppLayout } from "@/shared/components/AppLayout";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
-          {children}
+          <AppLayout>{children}</AppLayout>
           {modal}
         </Providers>
       </body>
