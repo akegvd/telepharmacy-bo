@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { DataIssuesBanner } from "./DataIssuesBanner";
 import { FilterBar } from "./FilterBar";
 import { SummaryBar } from "./SummaryBar";
-import { TaskCard } from "./TaskCard";
+import { TaskList } from "./TaskList";
 import { useTasksQuery } from "../hooks/useTaskQueries";
 import { filterTasks } from "../utils/filterTasks";
 
@@ -91,13 +91,7 @@ export function Dashboard() {
                   : "No requests match your filters."}
               </Alert>
             ) : (
-              <Grid container spacing={2}>
-                {filteredTasks.map((task) => (
-                  <Grid key={task.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                    <TaskCard task={task} />
-                  </Grid>
-                ))}
-              </Grid>
+              <TaskList tasks={filteredTasks} />
             )}
           </>
         )}
