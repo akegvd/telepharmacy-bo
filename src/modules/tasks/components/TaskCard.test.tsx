@@ -1,27 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
-import { TaskCard } from "../TaskCard";
-import { NormalizedTask } from "../../types/task";
-
-function makeTask(overrides: Partial<NormalizedTask> = {}): NormalizedTask {
-  return {
-    id: "1",
-    customerName: "Somchai P.",
-    serviceType: "video_call",
-    symptom: "Persistent dry cough",
-    status: "new",
-    createdAt: "2026-08-09T09:12:00.000Z",
-    issues: [],
-    raw: {
-      customerName: "Somchai P.",
-      serviceType: "video_call",
-      symptom: "Persistent dry cough",
-      status: "new",
-      createdAt: "2026-08-09T09:12:00.000Z",
-    },
-    ...overrides,
-  };
-}
+import { TaskCard } from "./TaskCard";
+import { makeTask } from "../test-utils/taskFixtures";
 
 describe("TaskCard", () => {
   it("shows the customer name, status, and symptom", () => {

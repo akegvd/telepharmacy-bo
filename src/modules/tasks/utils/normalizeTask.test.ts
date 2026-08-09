@@ -1,4 +1,4 @@
-import { normalizeTask, normalizeTasks } from "../normalizeTask";
+import { normalizeTask, normalizeTasks } from "./normalizeTask";
 
 describe("normalizeTask", () => {
   it("passes clean data through unchanged with no issues", () => {

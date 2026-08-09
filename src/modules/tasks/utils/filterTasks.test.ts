@@ -1,5 +1,5 @@
-import { filterTasks } from "../filterTasks";
-import { NormalizedTask } from "../../types/task";
+import { filterTasks } from "./filterTasks";
+import { NormalizedTask } from "../types/task";
 
 function makeTask(overrides: Partial<NormalizedTask>): NormalizedTask {
   return {

@@ -98,4 +98,17 @@ npm test             # run once
 npm run test:watch   # watch mode
 ```
 
-Tests live under `__tests__` directories next to the code they cover.
+Test files sit directly beside the code they cover as `Component.test.tsx` (same convention as `.stories.tsx`) rather than in a `__tests__` subfolder. Some component tests also assert on a snapshot (e.g. `StatusChip.test.tsx`, snapshot stored in the adjacent `__snapshots__/`) — review those diffs carefully on intentional UI changes and re-run with `-u` to update.
+
+Every component in `modules/tasks/components` and `shared/components` has a test, and the two custom hooks (`useDebouncedValue`, `useTaskQueries`) are tested in isolation via `renderHook`. Components that call `next/navigation` mock it with `jest.mock`; components that use TanStack Query wrap in a fresh `QueryClientProvider` per test and mock `modules/tasks/services/taskApi` rather than `fetch`.
+
+### Storybook
+
+Component stories live next to the component (`Component.stories.tsx`), using `@storybook/nextjs-vite`. Stories render through the app's real MUI theme (`.storybook/preview.tsx`), and `next/navigation` is auto-mocked by the framework (`parameters.nextjs.appDirectory: true`, set globally).
+
+```bash
+npm run storybook          # dev server at http://localhost:6006
+npm run build-storybook    # static build to storybook-static/
+```
+
+Every component has a story. Components backed by TanStack Query (`TaskDetailContent`, `Dashboard`) use the `withQueryClient` decorator in `modules/tasks/test-utils/storyQueryClient.tsx` to seed the query cache directly — there's no mock API server in Storybook, so an unseeded query would just fail against a nonexistent backend. That decorator also disables background refetch for the seeded key, which is why a "Loading" or network-error story isn't included: simulating those would mean stubbing `window.fetch` globally, which leaks across story navigation within the same Storybook session.
