@@ -1,21 +1,28 @@
 "use client";
 
+import { useState } from "react";
+
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import {
   AppBar,
   Box,
   Drawer,
+  IconButton,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const DRAWER_WIDTH = 240;
+const COLLAPSED_DRAWER_WIDTH = 72;
 
 interface NavItem {
   label: string;
@@ -27,12 +34,21 @@ const NAV_ITEMS: NavItem[] = [{ label: "Dashboard", href: "/", icon: <DashboardI
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(false);
+  const drawerWidth = collapsed ? COLLAPSED_DRAWER_WIDTH : DRAWER_WIDTH;
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <AppBar
         position="fixed"
-        sx={{ width: `calc(100% - ${DRAWER_WIDTH}px)`, ml: `${DRAWER_WIDTH}px` }}
+        color="inherit"
+        elevation={0}
+        sx={{
+          zIndex: (t) => t.zIndex.drawer + 1,
+          bgcolor: "background.paper",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
       >
         <Toolbar>
           <Typography variant="h6" noWrap component="div">
@@ -41,37 +57,69 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </Toolbar>
       </AppBar>
 
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: DRAWER_WIDTH,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": { width: DRAWER_WIDTH, boxSizing: "border-box" },
-        }}
-      >
-        <Toolbar>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-            Telepharmacy
-          </Typography>
-        </Toolbar>
-        <List component="nav" aria-label="Main navigation">
-          {NAV_ITEMS.map((item) => (
-            <ListItemButton
-              key={item.href}
-              component={Link}
-              href={item.href}
-              selected={pathname === item.href}
+      <Box sx={{ display: "flex", flex: 1 }}>
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            whiteSpace: "nowrap",
+            transition: (t) =>
+              t.transitions.create("width", { duration: t.transitions.duration.shortest }),
+            "& .MuiDrawer-paper": {
+              width: drawerWidth,
+              boxSizing: "border-box",
+              overflowX: "hidden",
+              transition: (t) =>
+                t.transitions.create("width", { duration: t.transitions.duration.shortest }),
+            },
+          }}
+        >
+          <Toolbar
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: collapsed ? "center" : "space-between",
+              px: 1,
+            }}
+          >
+            {!collapsed && (
+              <Typography variant="subtitle1" noWrap sx={{ fontWeight: 700, pl: 1 }}>
+                Telepharmacy
+              </Typography>
+            )}
+            <IconButton
+              onClick={() => setCollapsed((prev) => !prev)}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.label} />
-            </ListItemButton>
-          ))}
-        </List>
-      </Drawer>
+              {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            </IconButton>
+          </Toolbar>
+          <List component="nav" aria-label="Main navigation">
+            {NAV_ITEMS.map((item) => (
+              <Tooltip key={item.href} title={collapsed ? item.label : ""} placement="right">
+                <ListItemButton
+                  component={Link}
+                  href={item.href}
+                  selected={pathname === item.href}
+                  sx={{ justifyContent: collapsed ? "center" : "flex-start", px: 2.5 }}
+                >
+                  <ListItemIcon
+                    sx={{ minWidth: 0, mr: collapsed ? 0 : 2, justifyContent: "center" }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  {!collapsed && <ListItemText primary={item.label} />}
+                </ListItemButton>
+              </Tooltip>
+            ))}
+          </List>
+        </Drawer>
 
-      <Box component="main" sx={{ flexGrow: 1, minWidth: 0 }}>
-        <Toolbar />
-        {children}
+        <Box component="main" sx={{ flexGrow: 1, minWidth: 0 }}>
+          <Toolbar />
+          {children}
+        </Box>
       </Box>
     </Box>
   );
