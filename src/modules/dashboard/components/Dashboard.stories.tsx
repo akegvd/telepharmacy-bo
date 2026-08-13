@@ -1,21 +1,24 @@
+import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
+import TASK_STATUS from '@/shared/enums/api/tasks/status';
+import { taskKeys } from '@/shared/hooks/api/tasks/taskKeys';
 import { withQueryClient } from '@/shared/mocks/storyQueryClient';
 
-import { taskKeys } from '../hooks/useTaskQueries';
+import DATA_ISSUE from '../enums/dataIssue';
 import { makeTask } from '../mocks/taskFixtures';
-import { ITransformTasksResponse } from '../types/utils/transforms/transformTask';
+import { ITransformTask } from '../types/utils/transforms/transformTask';
+import { buildTaskListSummary } from '../utils/transforms/transformTaskListResponse';
 
-import { Dashboard } from './Dashboard';
+import Dashboard from './Dashboard';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-function seededDashboard(result: ITransformTasksResponse) {
-  return withQueryClient((queryClient) => {
-    queryClient.setQueryData(taskKeys.all, result);
+const seededDashboard = (taskList: ITransformTask[]) =>
+  withQueryClient((queryClient) => {
+    queryClient.setQueryData(taskKeys.all, { taskList, summary: buildTaskListSummary(taskList) });
     // No mock API in Storybook — keep the seeded data as-is instead of
     // refetching (also prevents the real 15s poll from firing here).
     queryClient.setQueryDefaults(taskKeys.all, { enabled: false });
   });
-}
 
 const meta: Meta<typeof Dashboard> = {
   component: Dashboard,
@@ -33,27 +36,29 @@ type Story = StoryObj<typeof Dashboard>;
 
 export const Populated: Story = {
   decorators: [
-    seededDashboard({
-      tasks: [
-        makeTask({ id: '1', customerName: 'Somchai P.', status: 'new' }),
-        makeTask({ id: '2', customerName: 'Nutcha R.', status: 'in_progress', serviceType: 'voice_call' }),
-        makeTask({ id: '3', customerName: 'Areeya K.', status: 'completed', serviceType: 'chat' }),
-      ],
-      duplicateIds: [],
-    }),
+    seededDashboard([
+      makeTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+      makeTask({
+        id: '2',
+        customerName: 'Nutcha R.',
+        status: TASK_STATUS.IN_PROGRESS,
+        serviceType: SERVICE_TYPE.VOICE_CALL,
+      }),
+      makeTask({ id: '3', customerName: 'Areeya K.', status: TASK_STATUS.COMPLETED, serviceType: SERVICE_TYPE.CHAT }),
+    ]),
   ],
 };
 
 export const Empty: Story = {
-  decorators: [seededDashboard({ tasks: [], duplicateIds: [] })],
+  decorators: [seededDashboard([])],
 };
 
 export const WithDataIssues: Story = {
   decorators: [
-    seededDashboard({
-      tasks: [makeTask({ id: '1', customerName: 'Unknown customer', issues: ['missing_name'] }), makeTask({ id: '2' })],
-      duplicateIds: ['2'],
-    }),
+    seededDashboard([
+      makeTask({ id: '1', customerName: '', displayCustomerName: '', issues: [DATA_ISSUE.MISSING_NAME] }),
+      makeTask({ id: '2', issues: [DATA_ISSUE.INVALID_DATE] }),
+    ]),
   ],
 };
 
@@ -67,12 +72,9 @@ export const FilteredByStatus: Story = {
     },
   },
   decorators: [
-    seededDashboard({
-      tasks: [
-        makeTask({ id: '1', customerName: 'Somchai P.', status: 'new' }),
-        makeTask({ id: '2', customerName: 'Nutcha R.', status: 'in_progress' }),
-      ],
-      duplicateIds: [],
-    }),
+    seededDashboard([
+      makeTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+      makeTask({ id: '2', customerName: 'Nutcha R.', status: TASK_STATUS.IN_PROGRESS }),
+    ]),
   ],
 };

@@ -21,9 +21,7 @@ const onResponseError = (error: AxiosError): Promise<never> => {
 
   if (!error.response) {
     const baseURL = error.config?.baseURL;
-    return Promise.reject(
-      new ApiError(`Could not reach the API${baseURL ? ` at ${baseURL}` : ''}. Is json-server running?`)
-    );
+    return Promise.reject(new ApiError(`Could not reach the API${baseURL ? ` at ${baseURL}` : ''}.`));
   }
 
   return Promise.reject(

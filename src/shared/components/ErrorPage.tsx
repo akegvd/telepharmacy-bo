@@ -12,7 +12,7 @@ interface IErrorPageProps {
   reset: () => void;
 }
 
-export function ErrorPage({ error, reset }: IErrorPageProps) {
+export const ErrorPage = ({ error, reset }: IErrorPageProps) => {
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -33,4 +33,4 @@ export function ErrorPage({ error, reset }: IErrorPageProps) {
       </Button>
     </StatusPage>
   );
-}
+};

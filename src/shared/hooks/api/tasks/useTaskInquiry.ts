@@ -1,11 +1,12 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 
 import { fetchTask } from '@/shared/services/api/tasks';
+import { ITaskItemResponse } from '@/shared/types/api/tasks';
 
 import { taskKeys } from './taskKeys';
 
 interface IUseTaskInquiryOptions<T> {
-  transformResponse: (data: unknown) => T;
+  transformResponse: (data: ITaskItemResponse) => T;
 }
 
 const useTaskInquiry = <T>(

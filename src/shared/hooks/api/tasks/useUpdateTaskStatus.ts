@@ -1,15 +1,17 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 
+import TASK_STATUS from '@/shared/enums/api/tasks/status';
 import { updateTaskStatus } from '@/shared/services/api/tasks';
+import { ITaskItemResponse } from '@/shared/types/api/tasks';
 import { IActionOptions } from '@/shared/types/service';
 
 interface IUseUpdateTaskStatusOptions<T> {
-  transformResponse: (data: unknown) => T;
+  transformResponse: (data: ITaskItemResponse) => T;
 }
 
 interface IUseUpdateTaskStatusParams {
   id: string;
-  status: string;
+  status: TASK_STATUS;
   options?: IActionOptions;
 }
 

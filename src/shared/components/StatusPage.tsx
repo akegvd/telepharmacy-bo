@@ -23,7 +23,15 @@ const TONE_SX = {
   },
 } as const;
 
-export function StatusPage({ icon, tone = 'primary', code, title, description, detail, children }: IStatusPageProps) {
+export const StatusPage = ({
+  icon,
+  tone = 'primary',
+  code,
+  title,
+  description,
+  detail,
+  children,
+}: IStatusPageProps) => {
   const titleId = 'status-page-title';
 
   return (
@@ -95,4 +103,4 @@ export function StatusPage({ icon, tone = 'primary', code, title, description, d
       </Stack>
     </Container>
   );
-}
+};

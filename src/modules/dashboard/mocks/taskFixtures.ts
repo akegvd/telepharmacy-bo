@@ -1,13 +1,17 @@
+import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
+import TASK_STATUS from '@/shared/enums/api/tasks/status';
+
 import { ITransformTask } from '../types/utils/transforms/transformTask';
+import { getServiceTypeLabel } from '../utils/taskDisplay';
 
 const DEFAULTS: ITransformTask = {
   id: '1',
   customerName: 'Somchai P.',
   displayCustomerName: 'Somchai P.',
-  serviceType: 'video_call',
-  displayServiceType: 'video_call',
-  status: 'new',
-  displayStatus: 'new',
+  serviceType: SERVICE_TYPE.VIDEO_CALL,
+  displayServiceType: getServiceTypeLabel(SERVICE_TYPE.VIDEO_CALL),
+  status: TASK_STATUS.NEW,
+  displayStatus: TASK_STATUS.NEW,
   displaySymptom: 'Persistent dry cough',
   displayCreatedAt: '2026-08-09T09:12:00.000Z',
   issues: [],
@@ -20,14 +24,14 @@ const DEFAULTS: ITransformTask = {
   },
 };
 
-export function makeTask(overrides: Partial<ITransformTask> = {}): ITransformTask {
+export const makeTask = (overrides: Partial<ITransformTask> = {}): ITransformTask => {
   const task: ITransformTask = { ...DEFAULTS, ...overrides };
 
   if (overrides.customerName && !overrides.displayCustomerName) {
     task.displayCustomerName = overrides.customerName;
   }
   if (overrides.serviceType && !overrides.displayServiceType) {
-    task.displayServiceType = overrides.serviceType;
+    task.displayServiceType = getServiceTypeLabel(overrides.serviceType);
   }
   if (overrides.status && !overrides.displayStatus) {
     task.displayStatus = overrides.status;
@@ -44,4 +48,4 @@ export function makeTask(overrides: Partial<ITransformTask> = {}): ITransformTas
   }
 
   return task;
-}
+};

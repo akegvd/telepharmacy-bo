@@ -1,27 +1,27 @@
 import dayjs from 'dayjs';
 
-import { TNormalizedServiceType, TStatus } from '../types/task';
+import TASK_STATUS from '@/shared/enums/api/tasks/status';
 
-export const STATUS_META: Record<TStatus, { label: string; color: 'info' | 'warning' | 'success' }> = {
-  new: { label: 'New', color: 'info' },
-  in_progress: { label: 'In progress', color: 'warning' },
-  completed: { label: 'Completed', color: 'success' },
+import { mapDisplayServiceTypeLabelByServiceType } from '../constants/mapDisplayServiceTypeLabelByServiceType';
+import { mapNextStatusByStatus } from '../constants/mapNextStatusByStatus';
+
+/** A status with no entry in mapNextStatusByStatus is unrecognized and can't be advanced. */
+export const getNextStatus = (status: string): TASK_STATUS | null => {
+  return (mapNextStatusByStatus as Partial<Record<string, TASK_STATUS | null>>)[status] ?? null;
 };
 
-export const NEXT_STATUS: Record<TStatus, TStatus | null> = {
-  new: 'in_progress',
-  in_progress: 'completed',
-  completed: null,
+/** Known service types get a friendly label; anything else falls back to the raw value from the source data. */
+export const getServiceTypeLabel = (serviceType: string): string => {
+  return (mapDisplayServiceTypeLabelByServiceType as Partial<Record<string, string>>)[serviceType] ?? serviceType;
 };
 
-export const SERVICE_TYPE_META: Record<TNormalizedServiceType, { label: string }> = {
-  video_call: { label: 'Video call' },
-  voice_call: { label: 'Voice call' },
-  chat: { label: 'Chat' },
-  unknown: { label: 'Unknown service' },
-};
+/** Falls back to the raw value from the source data when it's missing or couldn't be parsed. */
+export const formatTaskDate = (value: string | null): string => {
+  if (!value) {
+    return value ?? '';
+  }
 
-export function formatTaskDate(iso: string | null): string {
-  if (!iso) return 'Unknown date';
-  return dayjs(iso).format('MMM D, hh:mm A');
-}
+  const parsed = dayjs(value);
+
+  return parsed.isValid() ? parsed.format('MMM D, hh:mm A') : value;
+};

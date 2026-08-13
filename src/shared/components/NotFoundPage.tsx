@@ -4,7 +4,7 @@ import { Button } from '@mui/material';
 import NextLink from './NextLink';
 import { StatusPage } from './StatusPage';
 
-export function NotFoundPage() {
+export const NotFoundPage = () => {
   return (
     <StatusPage
       tone="primary"
@@ -18,4 +18,4 @@ export function NotFoundPage() {
       </Button>
     </StatusPage>
   );
-}
+};

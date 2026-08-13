@@ -15,7 +15,7 @@ interface ISearchResultWrapperProps {
   children: ReactNode;
 }
 
-export function SearchResultWrapper({
+export const SearchResultWrapper = ({
   isLoading,
   isError = false,
   isEmpty = false,
@@ -25,7 +25,7 @@ export function SearchResultWrapper({
   onRetry,
   minHeight = 200,
   children,
-}: ISearchResultWrapperProps) {
+}: ISearchResultWrapperProps) => {
   if (isLoading) {
     return (
       <Stack spacing={1.5} sx={{ alignItems: 'center', justifyContent: 'center', minHeight, py: 4 }}>
@@ -74,4 +74,4 @@ export function SearchResultWrapper({
   }
 
   return <>{children}</>;
-}
+};

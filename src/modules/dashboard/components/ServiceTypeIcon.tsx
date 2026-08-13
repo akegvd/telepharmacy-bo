@@ -4,16 +4,15 @@ import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined';
 import { SvgIconProps } from '@mui/material';
 
-import { TNormalizedServiceType } from '../types/task';
+import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 
-const ICONS: Record<TNormalizedServiceType, typeof VideocamOutlinedIcon> = {
-  video_call: VideocamOutlinedIcon,
-  voice_call: PhoneOutlinedIcon,
-  chat: ChatOutlinedIcon,
-  unknown: HelpOutlineOutlinedIcon,
+const ICONS: Record<string, typeof VideocamOutlinedIcon> = {
+  [SERVICE_TYPE.VIDEO_CALL]: VideocamOutlinedIcon,
+  [SERVICE_TYPE.VOICE_CALL]: PhoneOutlinedIcon,
+  [SERVICE_TYPE.CHAT]: ChatOutlinedIcon,
 };
 
-export function ServiceTypeIcon({ serviceType, ...props }: { serviceType: TNormalizedServiceType } & SvgIconProps) {
-  const Icon = ICONS[serviceType];
+export const ServiceTypeIcon = ({ serviceType, ...props }: { serviceType: string } & SvgIconProps) => {
+  const Icon = ICONS[serviceType] ?? HelpOutlineOutlinedIcon;
   return <Icon fontSize="small" {...props} />;
-}
+};

@@ -31,7 +31,7 @@ interface INavItem {
 
 const NAV_ITEMS: INavItem[] = [{ label: 'Dashboard', href: '/', icon: <DashboardIcon /> }];
 
-export function Sidebar() {
+export const Sidebar = () => {
   const pathname = usePathname();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -106,4 +106,4 @@ export function Sidebar() {
       </IconButton>
     </>
   );
-}
+};

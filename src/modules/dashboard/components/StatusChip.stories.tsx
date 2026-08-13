@@ -1,3 +1,5 @@
+import TASK_STATUS from '@/shared/enums/api/tasks/status';
+
 import { StatusChip } from './StatusChip';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
@@ -11,13 +13,17 @@ export default meta;
 type Story = StoryObj<typeof StatusChip>;
 
 export const New: Story = {
-  args: { status: 'new' },
+  args: { status: TASK_STATUS.NEW },
 };
 
 export const InProgress: Story = {
-  args: { status: 'in_progress' },
+  args: { status: TASK_STATUS.IN_PROGRESS },
 };
 
 export const Completed: Story = {
-  args: { status: 'completed' },
+  args: { status: TASK_STATUS.COMPLETED },
+};
+
+export const Unrecognized: Story = {
+  args: { status: 'pending_review' },
 };

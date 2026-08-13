@@ -4,7 +4,7 @@ import setupInterceptorsTo from '@/shared/services/interceptor';
 
 const axiosInstance = setupInterceptorsTo(
   axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000',
+    baseURL: process.env.NEXT_PUBLIC_API_URL ?? '/api',
     headers: { 'Content-Type': 'application/json' },
   })
 );

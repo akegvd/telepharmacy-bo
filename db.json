@@ -5,7 +5,7 @@
       "customerName": "Somchai P.",
       "serviceType": "video_call",
       "symptom": "Persistent dry cough for 5 days",
-      "status": "new",
+      "status": "completed",
       "createdAt": "2026-08-09T09:12:00.000Z"
     },
     {
@@ -13,7 +13,7 @@
       "customerName": "Anong W.",
       "serviceType": "video_call",
       "symptom": "Chest pain, shortness of breath",
-      "status": "in_progress",
+      "status": "completed",
       "createdAt": "2026-08-09T08:45:00.000Z"
     },
     {
@@ -119,5 +119,6 @@
       "status": "new",
       "createdAt": "2026-08-09T13:05:00.000Z"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

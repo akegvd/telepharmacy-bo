@@ -12,19 +12,23 @@ Built with Next.js 16 (App Router), React 19, TypeScript, MUI, and TanStack Quer
 
 ## Running it
 
-Two processes: the mock API and the app.
-
 ```bash
 npm install
-
-# 1. Mock API (json-server, reading db.json)
-npx json-server --watch db.json --port 4000
-
-# 2. App, in a separate terminal
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The app expects the API at `http://localhost:4000` (see `.env.local.example` — copy it to `.env.local` to override via `NEXT_PUBLIC_API_URL`).
+Open [http://localhost:3000](http://localhost:3000). By default the app talks to its own built-in mock API at `/api/tasks` — see [How the mock API is reachable](#how-the-mock-api-is-reachable) below — so this is the only process you need to run.
+
+<details>
+<summary>Using json-server instead</summary>
+
+```bash
+npx json-server --watch db.json --port 4000
+```
+
+Then point the app at it via `NEXT_PUBLIC_API_URL` (see `.env.example` — copy it to `.env.local` and set `NEXT_PUBLIC_API_URL=http://localhost:4000`).
+
+</details>
 
 ## How it's structured
 
@@ -34,20 +38,23 @@ Follows the domain-driven layout in [`PROJECT_STRUCTURE.md`](./PROJECT_STRUCTURE
 src/
   app/
     page.tsx                    dashboard route (wraps the client Dashboard in Suspense)
-    task/[id]/page.tsx          full task detail page (direct visit / refresh)
-    @modal/(.)task/[id]/page.tsx  same detail content, intercepted as a modal over the list
+    task/page.tsx                full task detail page, reads ?id= (direct visit / refresh)
+    api/tasks/route.ts          mock API: GET (list)
+    api/tasks/[id]/route.ts     mock API: GET (detail), PATCH (status)
+    api/tasks/_lib/tasksStore.ts  in-memory store backing the mock API, seeded from db.json
     providers.tsx               composition root: QueryClientProvider + AppThemeProvider
   modules/dashboard/           the "dashboard" bounded context — all task domain logic
-    components/                 Dashboard, TaskCard, TaskDetailContent, FilterBar, ...
-    hooks/useTaskQueries.ts     composes the shared query/mutation hooks with transformTask(s)
-    types/task.ts               ServiceType/Status enums, DataIssue
-    types/utils/transforms/transformTask.ts  ITransformTask / ITransformTasksResponse (transform return types)
+    components/                 Dashboard, TaskList, TaskDetailContent, FilterBar, ...
+    constants/                  status/service-type label, color and next-status lookup maps
+    enums/dataIssue.ts          the data problems a task can be flagged with
+    types/taskStatus.ts         TStatusColor — the palette colors a status can render as
+    types/utils/transforms/     ITransformTask / ITransformTaskListResponse (transform return types)
     utils/
-      transforms/transformTask.ts  repairs/flags bad seed data at the API boundary
-      filterTasks.ts            pure search/service/status filter, unit tested
-      taskDisplay.ts            status/service-type labels, date formatting
+      transforms/transformTaskListResponse.ts  repairs/flags bad seed data at the API boundary
+      filterTaskList.ts         pure search/service/status filter, unit tested
+      taskDisplay.ts            lookups with fallbacks for unknown values, date formatting
   shared/                       generic, no business logic
-    components/Modal.tsx        router.back()-driven dialog wrapper (used by the intercepted route)
+    components/Modal.tsx        dialog wrapper, closed via an onClose prop
     constants/apiEndpoints/tasks.ts  task endpoint path constants
     hooks/useDebouncedValue.ts
     hooks/api/tasks/             generic useQuery/useMutation wrappers, generic over transformResponse
@@ -57,7 +64,7 @@ src/
   theme/                        MUI theme + AppThemeProvider
 ```
 
-**Detail view as a modal-over-route.** Clicking a card opens `/task/:id` as a dialog over the dashboard (shareable URL, back button closes it) using Next's intercepting + parallel routes (`@modal/(.)task/[id]`). Visiting the URL directly, or refreshing, renders the same content as a full page instead — no duplicated logic, `TaskDetailContent` is shared by both.
+**Detail view as a modal over client-side state.** Clicking a row pushes `?id=` onto the current dashboard URL (shareable, preserves filters) and `Dashboard` renders `TaskDetailContent` inside a `Modal` on top of the list; closing removes the param. Visiting `/task?id=` directly renders the same `TaskDetailContent` as a standalone full page instead. Both routes stay static — no dynamic route segments or intercepting routes — which keeps the app compatible with `output: 'export'`.
 
 **Filters live in the URL** (`?q=&service=&status=`) via `useSearchParams`/`router.replace`, so a filtered view is bookmarkable/shareable. The search box is debounced (300ms) before it touches the URL.
 
@@ -74,6 +81,12 @@ src/
 
 Nothing is hidden — every deviation from the data model is visible somewhere in the UI, not just swallowed by a try/catch.
 
+## How the mock API is reachable
+
+The [live demo](https://telepharmacy-bo.vercel.app/) has no `json-server` process to talk to — Vercel only runs the Next.js app. Instead, `src/app/api/tasks/route.ts` and `src/app/api/tasks/[id]/route.ts` are Next.js route handlers that serve `db.json`'s rows verbatim (bad fields included) from an in-memory store (`app/api/tasks/_lib/tasksStore.ts` — deliberately kept inside the route folder, not the `dashboard` domain module, since it's demo-only plumbing, not business logic), supporting the same `GET /tasks`, `GET /tasks/:id`, `PATCH /tasks/:id` shape json-server does. `services/axios.ts` defaults `NEXT_PUBLIC_API_URL` to `/api`, so this is what both `npm run dev` and the deployed app use unless you opt into json-server (see [Running it](#running-it)).
+
+This is a mock, not a database: task edits live in a plain array in the route handler's module scope, so a status change persists for as long as that serverless instance stays warm and resets on the next cold start or deploy.
+
 ## Trade-offs and what I'd improve with more time
 
 - **No optimistic status updates.** The "Advance" button waits for the `PATCH` to resolve before the UI reflects it. Optimistic updates (via TanStack Query's `onMutate`) would feel snappier but add rollback complexity I didn't think was worth it for a 3-hour scope.
@@ -82,6 +95,7 @@ Nothing is hidden — every deviation from the data model is visible somewhere i
 - **No date-range filter** (today / this week / custom) — service/status/search filters were prioritized over this since they cover the more common triage workflow.
 - **No E2E test.** Unit tests cover the data-normalization logic (the trickiest, highest-value part given the seed data's intentional issues) and the filter logic; component tests cover `TaskCard`. A Playwright test driving the modal-open → advance-status flow would be the next thing I'd add.
 - **MUI's default theme is barely customized.** Given more time I'd put more polish into the visual design (spacing rhythm, empty-state illustration, etc.) rather than the default palette tweak currently in `theme/theme.ts`.
+- **The demo's mock API doesn't persist.** See [How the mock API is reachable](#how-the-mock-api-is-reachable) — a real deploy would put `db.json`'s rows in an actual database instead of a module-scope array.
 
 ## Ideas I'd build if this were a real product
 

@@ -18,6 +18,10 @@ const eslintConfig = defineConfig([
   ...storybook.configs['flat/recommended'],
   {
     rules: {
+      // Arrow functions everywhere — no `function` declarations or expressions.
+      'func-style': ['error', 'expression', { allowArrowFunctions: true }],
+      'prefer-arrow-callback': 'error',
+
       // Sort imports + group imports + organize imports
       'import/order': [
         'error',
@@ -70,6 +74,13 @@ const eslintConfig = defineConfig([
     },
   },
   prettierRecommended,
+  {
+    rules: {
+      // Re-enabled after prettierRecommended, which turns `curly` off by default.
+      // `all` is safe with Prettier: bodies are always braced and expanded onto their own lines.
+      curly: ['error', 'all'],
+    },
+  },
 ]);
 
 export default eslintConfig;

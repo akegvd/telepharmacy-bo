@@ -6,8 +6,8 @@ import { useState, type ReactElement } from 'react';
  * API — Storybook has no mock server running, so an unseeded query would
  * just hang/error against a nonexistent backend.
  */
-export function withQueryClient(seed: (queryClient: QueryClient) => void) {
-  return function QueryClientDecorator(Story: () => ReactElement) {
+export const withQueryClient = (seed: (queryClient: QueryClient) => void) => {
+  const QueryClientDecorator = (Story: () => ReactElement) => {
     const [queryClient] = useState(() => {
       const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
       seed(client);
@@ -20,4 +20,6 @@ export function withQueryClient(seed: (queryClient: QueryClient) => void) {
       </QueryClientProvider>
     );
   };
-}
+
+  return QueryClientDecorator;
+};

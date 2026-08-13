@@ -16,28 +16,28 @@ describe('useLoading', () => {
     const { result } = renderHook(() => useLoading(), { wrapper });
 
     expect(result.current.isLoading).toBe(false);
-    expect(typeof result.current.show).toBe('function');
-    expect(typeof result.current.hide).toBe('function');
+    expect(typeof result.current.showLoading).toBe('function');
+    expect(typeof result.current.hideLoading).toBe('function');
   });
 
-  it('sets isLoading to true when show is called', () => {
+  it('sets isLoading to true when showLoading is called', () => {
     const { result } = renderHook(() => useLoading(), { wrapper });
 
     act(() => {
-      result.current.show();
+      result.current.showLoading();
     });
 
     expect(result.current.isLoading).toBe(true);
   });
 
-  it('sets isLoading back to false when hide is called after show', () => {
+  it('sets isLoading back to false when hideLoading is called after showLoading', () => {
     const { result } = renderHook(() => useLoading(), { wrapper });
 
     act(() => {
-      result.current.show();
+      result.current.showLoading();
     });
     act(() => {
-      result.current.hide();
+      result.current.hideLoading();
     });
 
     expect(result.current.isLoading).toBe(false);

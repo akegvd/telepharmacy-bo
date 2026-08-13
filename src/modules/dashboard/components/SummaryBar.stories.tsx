@@ -1,4 +1,8 @@
+import TASK_STATUS from '@/shared/enums/api/tasks/status';
+
+import DATA_ISSUE from '../enums/dataIssue';
 import { makeTask } from '../mocks/taskFixtures';
+import { buildTaskListSummary } from '../utils/transforms/transformTaskListResponse';
 
 import { SummaryBar } from './SummaryBar';
 
@@ -14,17 +18,27 @@ type Story = StoryObj<typeof SummaryBar>;
 
 export const Mixed: Story = {
   args: {
-    tasks: [
-      makeTask({ id: '1', status: 'new' }),
-      makeTask({ id: '2', status: 'new' }),
-      makeTask({ id: '3', status: 'in_progress' }),
-      makeTask({ id: '4', status: 'completed' }),
-      makeTask({ id: '5', status: 'completed' }),
-      makeTask({ id: '6', status: 'completed' }),
-    ],
+    summary: buildTaskListSummary([
+      makeTask({ id: '1', status: TASK_STATUS.NEW }),
+      makeTask({ id: '2', status: TASK_STATUS.NEW }),
+      makeTask({ id: '3', status: TASK_STATUS.IN_PROGRESS }),
+      makeTask({ id: '4', status: TASK_STATUS.COMPLETED }),
+      makeTask({ id: '5', status: TASK_STATUS.COMPLETED }),
+      makeTask({ id: '6', status: TASK_STATUS.COMPLETED }),
+    ]),
   },
 };
 
 export const Empty: Story = {
-  args: { tasks: [] },
+  args: { summary: buildTaskListSummary([]) },
+};
+
+export const WithFlaggedData: Story = {
+  args: {
+    summary: buildTaskListSummary([
+      makeTask({ id: '1', status: TASK_STATUS.NEW }),
+      makeTask({ id: '2', status: TASK_STATUS.NEW, issues: [DATA_ISSUE.MISSING_NAME] }),
+      makeTask({ id: '3', status: TASK_STATUS.COMPLETED, issues: [DATA_ISSUE.INVALID_DATE] }),
+    ]),
+  },
 };

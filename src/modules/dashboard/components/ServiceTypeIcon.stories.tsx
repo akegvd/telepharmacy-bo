@@ -1,3 +1,5 @@
+import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
+
 import { ServiceTypeIcon } from './ServiceTypeIcon';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
@@ -11,15 +13,15 @@ export default meta;
 type Story = StoryObj<typeof ServiceTypeIcon>;
 
 export const VideoCall: Story = {
-  args: { serviceType: 'video_call' },
+  args: { serviceType: SERVICE_TYPE.VIDEO_CALL },
 };
 
 export const VoiceCall: Story = {
-  args: { serviceType: 'voice_call' },
+  args: { serviceType: SERVICE_TYPE.VOICE_CALL },
 };
 
 export const Chat: Story = {
-  args: { serviceType: 'chat' },
+  args: { serviceType: SERVICE_TYPE.CHAT },
 };
 
 export const Unknown: Story = {

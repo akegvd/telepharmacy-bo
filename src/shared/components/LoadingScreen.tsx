@@ -2,7 +2,7 @@ import { alpha, Box, Stack, Typography } from '@mui/material';
 
 import { LoadingSpinner } from './LoadingSpinner';
 
-export function LoadingScreen() {
+export const LoadingScreen = () => {
   return (
     <Box
       sx={{
@@ -23,4 +23,4 @@ export function LoadingScreen() {
       </Stack>
     </Box>
   );
-}
+};

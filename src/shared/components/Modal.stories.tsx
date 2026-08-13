@@ -20,5 +20,6 @@ type Story = StoryObj<typeof Modal>;
 export const Default: Story = {
   args: {
     children: <Typography>Modal content goes here.</Typography>,
+    onClose: () => {},
   },
 };

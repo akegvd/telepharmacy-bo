@@ -1,114 +1,207 @@
 'use client';
 
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import EditDocumentIcon from '@mui/icons-material/EditDocument';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import { Box, Stack, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
-import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import {
+  IconButton,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { TableComponents, TableVirtuoso } from 'react-virtuoso';
 
+import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
+import TASK_STATUS from '@/shared/enums/api/tasks/status';
+import { useUpdateTaskStatusMutation } from '@/shared/hooks/api/tasks/useUpdateTaskStatusMutation';
+
+import { mapDisplayStatusColorByStatus } from '../constants/mapDisplayStatusColorByStatus';
+import { mapDisplayStatusLabelByStatus } from '../constants/mapDisplayStatusLabelByStatus';
+import { taskListHeight, taskListTableMinWidth } from '../constants/taskList';
 import { ITransformTask } from '../types/utils/transforms/transformTask';
-import { formatTaskDate, SERVICE_TYPE_META } from '../utils/taskDisplay';
+import { formatTaskDate, getNextStatus } from '../utils/taskDisplay';
 
 import { ServiceTypeIcon } from './ServiceTypeIcon';
 import { StatusChip } from './StatusChip';
 
 const ISSUE_LABELS: Record<string, string> = {
   missing_name: 'Customer name was missing',
-  unknown_service_type: 'Unrecognized service type',
-  unknown_status: 'Unrecognized status, shown as New',
+  unknown_service_type: 'Unrecognized service type (showing raw value)',
+  unknown_status: 'Unrecognized status (workflow disabled)',
   missing_symptom: 'Symptom description was missing',
-  invalid_date: 'Requested date could not be parsed',
+  invalid_date: 'Request date missing or invalid',
 };
 
-export function TaskList({ tasks }: { tasks: ITransformTask[] }) {
-  const router = useRouter();
+const TASK_LIST_COLUMN_COUNT = 6;
 
-  const components: TableComponents<ITransformTask> = useMemo(
-    () => ({
-      Table: (props) => <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 720 }} {...props} />,
-      TableHead,
-      TableBody,
-      TableRow: ({ item, ...props }) => (
-        <TableRow
-          hover
-          tabIndex={0}
-          role="link"
-          aria-label={`Open request from ${item.displayCustomerName}`}
-          onClick={() => router.push(`/task/${item.id}`)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault();
-              router.push(`/task/${item.id}`);
-            }
-          }}
-          sx={{ cursor: 'pointer' }}
-          {...props}
-        />
-      ),
-    }),
-    [router]
-  );
+type TTaskListRow =
+  | { kind: 'task'; task: ITransformTask; rowGroupIndex: number }
+  | { kind: 'issues'; taskId: string; label: string; rowGroupIndex: number };
 
-  return (
-    <TableVirtuoso
-      useWindowScroll
-      data={tasks}
-      components={components}
-      fixedHeaderContent={() => (
-        <TableRow>
-          <TableCell width="28%">Customer</TableCell>
-          <TableCell width="16%">Service</TableCell>
-          <TableCell>Symptom</TableCell>
-          <TableCell width="18%">Requested</TableCell>
-          <TableCell width="14%" align="center">
-            Status
+const buildTaskListRows = (taskList: ITransformTask[]): TTaskListRow[] => {
+  return taskList.flatMap((task, rowGroupIndex) => {
+    if (task.issues.length === 0) {
+      return [{ kind: 'task', task, rowGroupIndex }];
+    }
+
+    return [
+      { kind: 'task', task, rowGroupIndex },
+      {
+        kind: 'issues',
+        taskId: task.id,
+        rowGroupIndex,
+        label: task.issues.map((issue) => ISSUE_LABELS[issue] ?? issue).join(' · '),
+      },
+    ];
+  });
+};
+
+const components: TableComponents<TTaskListRow> = {
+  Table: (props) => <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: taskListTableMinWidth }} {...props} />,
+  TableHead,
+  TableBody,
+  TableRow: ({ item, ...props }) => (
+    <TableRow
+      aria-label={item.kind === 'task' ? `Request from ${item.task.displayCustomerName}` : undefined}
+      sx={{ bgcolor: item.rowGroupIndex % 2 === 1 ? 'action.hover' : 'background.paper' }}
+      {...props}
+    />
+  ),
+};
+
+const fixedHeaderContent = () => (
+  <TableRow>
+    <TableCell sx={{ minWidth: (theme) => theme.spacing(28) }}>Customer</TableCell>
+    <TableCell sx={{ minWidth: (theme) => theme.spacing(18) }}>Service</TableCell>
+    <TableCell sx={{ minWidth: (theme) => theme.spacing(45) }}>Symptom</TableCell>
+    <TableCell sx={{ minWidth: (theme) => theme.spacing(20) }}>Requested</TableCell>
+    <TableCell sx={{ minWidth: (theme) => theme.spacing(16) }} align="center">
+      Status
+    </TableCell>
+    <TableCell sx={{ minWidth: (theme) => theme.spacing(24) }} align="right">
+      Action
+    </TableCell>
+  </TableRow>
+);
+
+interface IPendingAdvance {
+  id: string;
+  customerName: string;
+  status: TASK_STATUS;
+}
+
+const TaskList = ({ taskList, onSelectTask }: { taskList: ITransformTask[]; onSelectTask: (id: string) => void }) => {
+  const mutation = useUpdateTaskStatusMutation();
+  const [pendingAdvance, setPendingAdvance] = useState<IPendingAdvance | null>(null);
+
+  const rows = useMemo(() => buildTaskListRows(taskList), [taskList]);
+
+  const itemContent = useCallback(
+    (_index: number, row: TTaskListRow) => {
+      if (row.kind === 'issues') {
+        return (
+          <TableCell colSpan={TASK_LIST_COLUMN_COUNT} sx={{ py: 0.5, borderBottom: 'none' }}>
+            <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', color: 'warning.dark' }}>
+              <WarningAmberIcon fontSize="small" />
+              <Typography variant="caption">{row.label}</Typography>
+            </Stack>
           </TableCell>
-        </TableRow>
-      )}
-      itemContent={(_index, task) => (
+        );
+      }
+
+      const { task } = row;
+      const nextStatus = getNextStatus(task.status);
+
+      return (
         <>
-          <TableCell>
-            <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
-              <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
-                {task.displayCustomerName}
-              </Typography>
-              {task.issues.length > 0 && (
-                <Tooltip title={task.issues.map((issue) => ISSUE_LABELS[issue] ?? issue).join(' · ')}>
-                  <Box
-                    data-testid="data-issue-warning"
-                    sx={{ display: 'flex', alignItems: 'center', color: 'warning.main' }}
-                  >
-                    <WarningAmberIcon fontSize="small" />
-                  </Box>
-                </Tooltip>
-              )}
-            </Stack>
+          <TableCell sx={{ minWidth: (theme) => theme.spacing(28) }}>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              {task.displayCustomerName}
+            </Typography>
           </TableCell>
-          <TableCell>
+          <TableCell sx={{ minWidth: (theme) => theme.spacing(18) }}>
             <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', color: 'text.secondary' }}>
-              <ServiceTypeIcon serviceType={task.displayServiceType} />
-              <Typography variant="body2" noWrap>
-                {SERVICE_TYPE_META[task.displayServiceType].label}
-              </Typography>
+              <ServiceTypeIcon serviceType={task.serviceType} />
+              <Typography variant="body2">{task.displayServiceType}</Typography>
             </Stack>
           </TableCell>
-          <TableCell>
-            <Tooltip title={task.displaySymptom}>
-              <Typography variant="body2" noWrap>
-                &ldquo;{task.displaySymptom}&rdquo;
-              </Typography>
-            </Tooltip>
+          <TableCell sx={{ minWidth: (theme) => theme.spacing(45) }}>
+            <Typography variant="body2">{task.displaySymptom ? `“${task.displaySymptom}”` : ''}</Typography>
           </TableCell>
-          <TableCell>
-            <Typography variant="body2" color="text.secondary" noWrap>
+          <TableCell sx={{ minWidth: (theme) => theme.spacing(20) }}>
+            <Typography variant="body2" color="text.secondary">
               {formatTaskDate(task.displayCreatedAt)}
             </Typography>
           </TableCell>
-          <TableCell align="center">
-            <StatusChip status={task.displayStatus} />
+          <TableCell sx={{ minWidth: (theme) => theme.spacing(16) }} align="center">
+            <StatusChip status={task.status} />
+          </TableCell>
+          <TableCell sx={{ minWidth: (theme) => theme.spacing(24) }} align="right">
+            <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'flex-end' }}>
+              {nextStatus && (
+                <Tooltip title={`Advance to ${mapDisplayStatusLabelByStatus[nextStatus]}`}>
+                  <IconButton
+                    size="small"
+                    aria-label="Advance"
+                    color={mapDisplayStatusColorByStatus[nextStatus]}
+                    onClick={() =>
+                      setPendingAdvance({ id: task.id, customerName: task.displayCustomerName, status: nextStatus })
+                    }
+                  >
+                    <EditDocumentIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
+              <Tooltip title="View detail">
+                <IconButton size="small" aria-label="View detail" onClick={() => onSelectTask(task.id)}>
+                  <DescriptionOutlinedIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Stack>
           </TableCell>
         </>
-      )}
-    />
+      );
+    },
+    [onSelectTask]
   );
-}
+
+  return (
+    <>
+      <TableVirtuoso
+        style={{ height: taskListHeight }}
+        data={rows}
+        components={components}
+        fixedHeaderContent={fixedHeaderContent}
+        itemContent={itemContent}
+      />
+      <ConfirmDialog
+        open={pendingAdvance !== null}
+        title={
+          pendingAdvance
+            ? `Advance ${pendingAdvance.customerName}'s request to ${mapDisplayStatusLabelByStatus[pendingAdvance.status]}?`
+            : ''
+        }
+        confirmLabel="Confirm"
+        loading={mutation.isPending}
+        onCancel={() => setPendingAdvance(null)}
+        onConfirm={() => {
+          if (!pendingAdvance) {
+            return;
+          }
+          mutation.mutate(
+            { id: pendingAdvance.id, status: pendingAdvance.status },
+            { onSuccess: () => setPendingAdvance(null) }
+          );
+        }}
+      />
+    </>
+  );
+};
+
+export default memo(TaskList);

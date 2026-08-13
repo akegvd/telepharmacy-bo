@@ -3,25 +3,28 @@
 import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 
 import { SearchResultWrapper } from '@/shared/components/SearchResultWrapper';
+import { useTaskQuery } from '@/shared/hooks/api/tasks/useTaskQuery';
+import { useUpdateTaskStatusMutation } from '@/shared/hooks/api/tasks/useUpdateTaskStatusMutation';
 
-import { useTaskQuery, useUpdateTaskStatusMutation } from '../hooks/useTaskQueries';
-import { formatTaskDate, NEXT_STATUS, SERVICE_TYPE_META, STATUS_META } from '../utils/taskDisplay';
+import { mapDisplayStatusLabelByStatus } from '../constants/mapDisplayStatusLabelByStatus';
+import { formatTaskDate, getNextStatus } from '../utils/taskDisplay';
 
 import { ServiceTypeIcon } from './ServiceTypeIcon';
 import { StatusChip } from './StatusChip';
 
 const ISSUE_LABELS: Record<string, string> = {
-  missing_name: 'The customer name was missing from this request and was shown as “Unknown customer”.',
-  unknown_service_type: "The service type wasn't one of the known values and was shown as “Unknown service”.",
-  unknown_status: "The status wasn't one of the known workflow states and was reset to “New”.",
+  missing_name: 'The customer name was missing from this request.',
+  unknown_service_type: "The service type wasn't recognized, so the raw value from the source data is shown.",
+  unknown_status: "The status wasn't recognized, so workflow actions are disabled for this request.",
   missing_symptom: 'No symptom description was provided.',
-  invalid_date: "The request date couldn't be parsed.",
+  invalid_date: "The request date is missing or couldn't be parsed.",
 };
 
-export function TaskDetailContent({ id }: { id: string }) {
+export const TaskDetailContent = ({ id }: { id: string }) => {
   const { data: task, isLoading, isError } = useTaskQuery(id);
   const mutation = useUpdateTaskStatusMutation();
-  const nextStatus = task ? NEXT_STATUS[task.status] : undefined;
+  const nextStatus = task ? getNextStatus(task.status) : undefined;
+  const isKnownStatus = task ? task.status in mapDisplayStatusLabelByStatus : true;
 
   return (
     <SearchResultWrapper
@@ -36,11 +39,11 @@ export function TaskDetailContent({ id }: { id: string }) {
               <Typography variant="h5" sx={{ fontWeight: 700 }}>
                 {task.displayCustomerName}
               </Typography>
-              <StatusChip status={task.displayStatus} />
+              <StatusChip status={task.status} />
             </Stack>
             <Stack direction="row" spacing={0.5} sx={{ mt: 0.5, alignItems: 'center', color: 'text.secondary' }}>
-              <ServiceTypeIcon serviceType={task.displayServiceType} />
-              <Typography variant="body2">{SERVICE_TYPE_META[task.displayServiceType].label}</Typography>
+              <ServiceTypeIcon serviceType={task.serviceType} />
+              <Typography variant="body2">{task.displayServiceType}</Typography>
               <Typography variant="body2">·</Typography>
               <Typography variant="body2">{formatTaskDate(task.displayCreatedAt)}</Typography>
             </Stack>
@@ -74,11 +77,15 @@ export function TaskDetailContent({ id }: { id: string }) {
                 loading={mutation.isPending}
                 onClick={() => mutation.mutate({ id: task.id, status: nextStatus })}
               >
-                Advance to {STATUS_META[nextStatus].label}
+                Advance to {mapDisplayStatusLabelByStatus[nextStatus]}
               </Button>
-            ) : (
+            ) : isKnownStatus ? (
               <Typography variant="body2" color="text.secondary">
                 This request has been completed.
+              </Typography>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                Status not recognized — workflow actions are unavailable.
               </Typography>
             )}
           </Stack>
@@ -86,4 +93,4 @@ export function TaskDetailContent({ id }: { id: string }) {
       )}
     </SearchResultWrapper>
   );
-}
+};

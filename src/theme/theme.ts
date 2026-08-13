@@ -1,6 +1,5 @@
 import { createTheme } from '@mui/material';
 
-// Palette based on https://github.com/minimal-ui-kit/material-kit-react
 export const theme = createTheme({
   palette: {
     mode: 'light',

@@ -7,6 +7,8 @@ interface IErrorProps {
   reset: () => void;
 }
 
-export default function Error({ error, reset }: IErrorProps) {
+const Error = ({ error, reset }: IErrorProps) => {
   return <ErrorPage error={error} reset={reset} />;
-}
+};
+
+export default Error;

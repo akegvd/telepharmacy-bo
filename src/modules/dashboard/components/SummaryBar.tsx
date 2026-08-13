@@ -1,29 +1,47 @@
-import { Paper, Stack, Typography } from '@mui/material';
+import { Divider, Paper, Stack, Typography } from '@mui/material';
 
-import { STATUSES } from '../types/task';
-import { ITransformTask } from '../types/utils/transforms/transformTask';
-import { STATUS_META } from '../utils/taskDisplay';
+import { mapDisplayStatusLabelByStatus } from '../constants/mapDisplayStatusLabelByStatus';
+import { taskStatusOptionList } from '../constants/taskStatusOptionList';
+import { ITaskListSummary } from '../types/utils/transforms/transformTaskListResponse';
 
-export function SummaryBar({ tasks }: { tasks: ITransformTask[] }) {
-  const counts = STATUSES.map((status) => ({
-    status,
-    count: tasks.filter((task) => task.status === status).length,
-  }));
-
+export const SummaryBar = ({ summary }: { summary: ITaskListSummary }) => {
   return (
-    <Paper variant="outlined" sx={{ p: 1.5, px: 2 }}>
-      <Stack direction="row" spacing={3} sx={{ flexWrap: 'wrap' }}>
-        {counts.map(({ status, count }) => (
+    <Paper variant="outlined" sx={{ p: 1.5, px: 2, display: 'inline-flex' }}>
+      <Stack
+        direction="row"
+        spacing={3}
+        divider={<Divider orientation="vertical" flexItem />}
+        sx={{ flexWrap: 'wrap' }}
+      >
+        <Stack direction="row" spacing={0.75} sx={{ alignItems: 'baseline' }}>
+          <Typography variant="h6" component="span" sx={{ fontWeight: 700 }}>
+            {summary.total}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Total
+          </Typography>
+        </Stack>
+        {taskStatusOptionList.map((status) => (
           <Stack key={status} direction="row" spacing={0.75} sx={{ alignItems: 'baseline' }}>
             <Typography variant="h6" component="span" sx={{ fontWeight: 700 }}>
-              {count}
+              {summary.statusCounts[status]}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {STATUS_META[status].label}
+              {mapDisplayStatusLabelByStatus[status]}
             </Typography>
           </Stack>
         ))}
+        {summary.flaggedCount > 0 && (
+          <Stack direction="row" spacing={0.75} sx={{ alignItems: 'baseline' }}>
+            <Typography variant="h6" component="span" sx={{ fontWeight: 700, color: 'warning.main' }}>
+              {summary.flaggedCount}
+            </Typography>
+            <Typography variant="body2" color="warning.main">
+              Flagged
+            </Typography>
+          </Stack>
+        )}
       </Stack>
     </Paper>
   );
-}
+};

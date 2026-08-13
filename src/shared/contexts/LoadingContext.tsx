@@ -6,19 +6,19 @@ import { LoadingScreen } from '../components/LoadingScreen';
 
 export interface ILoadingContextValue {
   isLoading: boolean;
-  show: () => void;
-  hide: () => void;
+  showLoading: () => void;
+  hideLoading: () => void;
 }
 
 export const LoadingContext = createContext<ILoadingContextValue | null>(null);
 
-export function LoadingProvider({ children }: { children: React.ReactNode }) {
+export const LoadingProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const show = useCallback(() => setIsLoading(true), []);
-  const hide = useCallback(() => setIsLoading(false), []);
+  const showLoading = useCallback(() => setIsLoading(true), []);
+  const hideLoading = useCallback(() => setIsLoading(false), []);
 
-  const value = useMemo(() => ({ isLoading, show, hide }), [isLoading, show, hide]);
+  const value = useMemo(() => ({ isLoading, showLoading, hideLoading }), [isLoading, showLoading, hideLoading]);
 
   return (
     <LoadingContext.Provider value={value}>
@@ -26,4 +26,4 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
       {children}
     </LoadingContext.Provider>
   );
-}
+};

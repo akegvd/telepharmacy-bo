@@ -6,12 +6,13 @@ import { useEffect, useState } from 'react';
 
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 
-import { SERVICE_TYPES, STATUSES } from '../types/task';
-import { STATUS_META } from '../utils/taskDisplay';
+import { mapDisplayStatusLabelByStatus } from '../constants/mapDisplayStatusLabelByStatus';
+import { serviceTypeOptionList } from '../constants/serviceTypeOptionList';
+import { taskStatusOptionList } from '../constants/taskStatusOptionList';
 
 const ALL = 'all';
 
-export function FilterBar() {
+export const FilterBar = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -23,20 +24,26 @@ export function FilterBar() {
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
-    if (debouncedSearch) params.set('q', debouncedSearch);
-    else params.delete('q');
+    if (debouncedSearch) {
+      params.set('q', debouncedSearch);
+    } else {
+      params.delete('q');
+    }
     router.replace(`/?${params.toString()}`, { scroll: false });
     // Only re-run when the debounced search term changes — service/status
     // filters update the URL directly in their own onChange handlers.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
-  function updateParam(key: string, value: string) {
+  const updateParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams);
-    if (value === ALL) params.delete(key);
-    else params.set(key, value);
+    if (value === ALL) {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
     router.replace(`/?${params.toString()}`, { scroll: false });
-  }
+  };
 
   return (
     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -57,7 +64,7 @@ export function FilterBar() {
         sx={{ minWidth: 160 }}
       >
         <MenuItem value={ALL}>All services</MenuItem>
-        {SERVICE_TYPES.map((type) => (
+        {serviceTypeOptionList.map((type) => (
           <MenuItem key={type} value={type}>
             {type.replace('_', ' ')}
           </MenuItem>
@@ -72,12 +79,12 @@ export function FilterBar() {
         sx={{ minWidth: 160 }}
       >
         <MenuItem value={ALL}>All statuses</MenuItem>
-        {STATUSES.map((value) => (
+        {taskStatusOptionList.map((value) => (
           <MenuItem key={value} value={value}>
-            {STATUS_META[value].label}
+            {mapDisplayStatusLabelByStatus[value]}
           </MenuItem>
         ))}
       </TextField>
     </Stack>
   );
-}
+};

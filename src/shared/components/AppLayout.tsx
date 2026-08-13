@@ -4,7 +4,7 @@ import { AppBar, Box, Toolbar, Typography } from '@mui/material';
 
 import { Sidebar } from './Sidebar';
 
-export function AppLayout({ children }: { children: React.ReactNode }) {
+export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <AppBar
@@ -35,4 +35,4 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </Box>
     </Box>
   );
-}
+};
