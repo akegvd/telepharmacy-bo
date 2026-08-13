@@ -35,20 +35,23 @@ src/
     task/[id]/page.tsx          full task detail page (direct visit / refresh)
     @modal/(.)task/[id]/page.tsx  same detail content, intercepted as a modal over the list
     providers.tsx               composition root: QueryClientProvider + AppThemeProvider
-  modules/tasks/                the "tasks" bounded context — all task domain logic
+  modules/dashboard/           the "dashboard" bounded context — all task domain logic
     components/                 Dashboard, TaskCard, TaskDetailContent, FilterBar, ...
-    hooks/useTaskQueries.ts     TanStack Query hooks (list, detail, status mutation)
-    services/taskApi.ts         task-specific API calls (built on shared/services/axios)
-    types/task.ts               Task / NormalizedTask data model
+    hooks/useTaskQueries.ts     composes the shared query/mutation hooks with transformTask(s)
+    types/task.ts               ServiceType/Status enums, DataIssue
+    types/utils/transforms/transformTask.ts  ITransformTask / ITransformTasksResponse (transform return types)
     utils/
-      normalizeTask.ts          repairs/flags bad seed data at the API boundary
+      transforms/transformTask.ts  repairs/flags bad seed data at the API boundary
       filterTasks.ts            pure search/service/status filter, unit tested
       taskDisplay.ts            status/service-type labels, date formatting
   shared/                       generic, no business logic
     components/Modal.tsx        router.back()-driven dialog wrapper (used by the intercepted route)
+    constants/apiEndpoints/tasks.ts  task endpoint path constants
     hooks/useDebouncedValue.ts
+    hooks/api/tasks/             generic useQuery/useMutation wrappers, generic over transformResponse
     services/axios.ts           shared axios instance, wired through the interceptor
     services/interceptor.ts     response interceptor: normalizes failures into ApiError
+    services/api/tasks.ts       raw task API calls — no transform, just typed axios wrappers
   theme/                        MUI theme + AppThemeProvider
 ```
 
@@ -60,7 +63,7 @@ src/
 
 ## Handling the bad seed data
 
-`db.json` includes a null customer name, an unrecognized `serviceType` (`phone_call`), an unrecognized `status` (`pending_review`), a blank symptom, an unparseable `createdAt`, a task missing `createdAt` entirely, and a duplicate `id`. `modules/tasks/utils/normalizeTask.ts` is the single place raw API data gets validated, once, at the boundary:
+`db.json` includes a null customer name, an unrecognized `serviceType` (`phone_call`), an unrecognized `status` (`pending_review`), a blank symptom, an unparseable `createdAt`, a task missing `createdAt` entirely, and a duplicate `id`. `modules/dashboard/utils/transforms/transformTask.ts` is the single place raw API data gets validated — passed as `transformResponse` into the shared `shared/hooks/api/tasks/*` hooks, which apply it right after the raw fetch resolves:
 
 - Bad/missing fields get a safe fallback (`"Unknown customer"`, `"No symptom description provided."`, `createdAt: null` → rendered as "Unknown date" instead of `Invalid Date`) and the repair is recorded in `issues: DataIssue[]`.
 - An unrecognized status falls back to `new` rather than breaking the `new → in_progress → completed` progression.
@@ -101,7 +104,7 @@ npm run test:watch   # watch mode
 
 Test files sit directly beside the code they cover as `Component.test.tsx` (same convention as `.stories.tsx`) rather than in a `__tests__` subfolder. Some component tests also assert on a snapshot (e.g. `StatusChip.test.tsx`, snapshot stored in the adjacent `__snapshots__/`) — review those diffs carefully on intentional UI changes and re-run with `-u` to update.
 
-Every component in `modules/tasks/components` and `shared/components` has a test, and the two custom hooks (`useDebouncedValue`, `useTaskQueries`) are tested in isolation via `renderHook`. Components that call `next/navigation` mock it with `jest.mock`; components that use TanStack Query wrap in a fresh `QueryClientProvider` per test and mock `modules/tasks/services/taskApi` rather than `fetch`.
+Every component in `modules/dashboard/components` and `shared/components` has a test, and the two custom hooks (`useDebouncedValue`, `useTaskQueries`) are tested in isolation via `renderHook`. Components that call `next/navigation` mock it with `jest.mock`; components that use TanStack Query wrap in a fresh `QueryClientProvider` per test and mock `shared/services/api/tasks` rather than `fetch`.
 
 ### Storybook
 
@@ -112,4 +115,4 @@ npm run storybook          # dev server at http://localhost:6006
 npm run build-storybook    # static build to storybook-static/
 ```
 
-Every component has a story. Components backed by TanStack Query (`TaskDetailContent`, `Dashboard`) use the `withQueryClient` decorator in `modules/tasks/test-utils/storyQueryClient.tsx` to seed the query cache directly — there's no mock API server in Storybook, so an unseeded query would just fail against a nonexistent backend. That decorator also disables background refetch for the seeded key, which is why a "Loading" or network-error story isn't included: simulating those would mean stubbing `window.fetch` globally, which leaks across story navigation within the same Storybook session.
+Every component has a story. Components backed by TanStack Query (`TaskDetailContent`, `Dashboard`) use the `withQueryClient` decorator in `shared/mocks/storyQueryClient.tsx` to seed the query cache directly — there's no mock API server in Storybook, so an unseeded query would just fail against a nonexistent backend. That decorator also disables background refetch for the seeded key, which is why a "Loading" or network-error story isn't included: simulating those would mean stubbing `window.fetch` globally, which leaks across story navigation within the same Storybook session.

@@ -1,6 +1,6 @@
 import { Container, Paper } from "@mui/material";
 
-import { TaskDetailContent } from "@/modules/tasks/components/TaskDetailContent";
+import { TaskDetailContent } from "@/modules/dashboard/components/TaskDetailContent";
 
 export default async function TaskPage({ params }: PageProps<"/task/[id]">) {
   const { id } = await params;

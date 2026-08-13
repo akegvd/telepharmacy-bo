@@ -1,7 +1,7 @@
 import { Container, Skeleton, Stack } from "@mui/material";
 import { Suspense } from "react";
 
-import { Dashboard } from "@/modules/tasks/components/Dashboard";
+import { Dashboard } from "@/modules/dashboard/components/Dashboard";
 
 function DashboardFallback() {
   return (
