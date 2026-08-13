@@ -12,12 +12,12 @@ import Dashboard from './Dashboard';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-const seededDashboard = (taskList: ITransformTaskItemResponse[]) =>
+const seededDashboard = (taskList: ITransformTaskItemResponse[], params?: Parameters<typeof taskKeys.list>[0]) =>
   withQueryClient((queryClient) => {
-    queryClient.setQueryData(taskKeys.all, { taskList, summary: buildTaskListSummary(taskList) });
+    queryClient.setQueryData(taskKeys.list(params), { taskList, summary: buildTaskListSummary(taskList) });
     // No mock API in Storybook — keep the seeded data as-is instead of
     // refetching (also prevents the real 15s poll from firing here).
-    queryClient.setQueryDefaults(taskKeys.all, { enabled: false });
+    queryClient.setQueryDefaults(taskKeys.list(params), { enabled: false });
   });
 
 const meta: Meta<typeof Dashboard> = {
@@ -72,9 +72,9 @@ export const FilteredByStatus: Story = {
     },
   },
   decorators: [
-    seededDashboard([
-      makeTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
-      makeTask({ id: '2', customerName: 'Nutcha R.', status: TASK_STATUS.IN_PROGRESS }),
-    ]),
+    // Seeded as the API would already return it filtered server-side for `status=new`.
+    seededDashboard([makeTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW })], {
+      status: TASK_STATUS.NEW,
+    }),
   ],
 };

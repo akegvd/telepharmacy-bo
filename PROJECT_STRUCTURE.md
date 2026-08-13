@@ -49,6 +49,9 @@ This project organizes application code by domain first (modules) and shares cod
 │   ├── shared/                       # Global shared layer — no business logic
 │   │   ├── components/
 │   │   ├── constants/
+│   │   ├── dev/                      # Dev-only tooling (see below) — never imported by modules
+│   │   │   ├── components/
+│   │   │   └── hooks/
 │   │   ├── enums/
 │   │   ├── hooks/
 │   │   ├── locales/                  # i18n translations if has
@@ -95,6 +98,10 @@ This project organizes application code by domain first (modules) and shares cod
 | **`src/modules/shared`** | **Business-logic** building blocks that are **reused across more than one** `src/modules/[subModuleName]/` folder. Organize as small sub-folders (e.g. by capability or subdomain) that **wrap** or compose domain concepts—types, transforms, hooks, components—so feature modules stay thin and do not duplicate rules. |
 
 Prefer keeping domain-specific code inside a single module until a second module genuinely needs it; then promote the shared part into `src/modules/shared`.
+
+### Dev tooling (`src/shared/dev`)
+
+Anything that exists only to make local development or a demo deploy easier — currently the dev API control panel and the mutations behind it — lives in `src/shared/dev`, not in a feature module. It is mounted once from `src/app/layout.tsx` and gated by `NEXT_PUBLIC_ENABLE_DEV_API_CONTROLS`, so it can be dropped wholesale without touching product code. The dependency arrow only points inward: `src/shared/dev` may read generic infrastructure such as query keys and API services, but nothing under `src/modules` imports from it, and it does not import domain types from `src/modules` either.
 
 ### Naming & Conventions
 - Keep directories lowercase with camelCase filenames (`useExample.ts`).

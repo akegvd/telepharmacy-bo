@@ -19,10 +19,7 @@ const renderGrid = (taskList: ITransformTaskItemResponse[], isRefreshing = false
 
 describe('TaskGrid', () => {
   it('renders a card for each task', () => {
-    renderGrid([
-      makeTask({ id: '1', customerName: 'Somchai P.' }),
-      makeTask({ id: '2', customerName: 'Nutcha R.' }),
-    ]);
+    renderGrid([makeTask({ id: '1', customerName: 'Somchai P.' }), makeTask({ id: '2', customerName: 'Nutcha R.' })]);
 
     expect(screen.getByText('Somchai P.')).toBeInTheDocument();
     expect(screen.getByText('Nutcha R.')).toBeInTheDocument();

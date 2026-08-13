@@ -11,6 +11,8 @@ const meta: Meta<typeof FilterBar> = {
     search: '',
     service: 'all',
     status: 'all',
+    createdFrom: '',
+    createdTo: '',
   },
   render: (args) => {
     const [, updateArgs] = useArgs();
@@ -20,6 +22,8 @@ const meta: Meta<typeof FilterBar> = {
         onSearchChange={(search) => updateArgs({ search })}
         onServiceChange={(service) => updateArgs({ service })}
         onStatusChange={(status) => updateArgs({ status })}
+        onCreatedFromChange={(createdFrom) => updateArgs({ createdFrom })}
+        onCreatedToChange={(createdTo) => updateArgs({ createdTo })}
       />
     );
   },
@@ -35,5 +39,7 @@ export const WithActiveFilters: Story = {
     search: 'Somchai',
     service: 'video_call',
     status: 'in_progress',
+    createdFrom: '2026-08-01',
+    createdTo: '2026-08-15',
   },
 };

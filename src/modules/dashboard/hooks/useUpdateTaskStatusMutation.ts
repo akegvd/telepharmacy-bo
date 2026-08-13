@@ -15,7 +15,7 @@ export const useUpdateTaskStatusMutation = () => {
           return;
         }
         queryClient.setQueryData(taskKeys.detail(updated.id), updated);
-        queryClient.invalidateQueries({ queryKey: taskKeys.all, exact: true });
+        queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
       },
     }
   );

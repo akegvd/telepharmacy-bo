@@ -10,7 +10,6 @@ import { SearchResultWrapper } from '@/shared/components/SearchResultWrapper';
 import { taskListAutoRefreshIntervalMs } from '../constants/taskList';
 import { useTaskListQuery } from '../hooks/useTaskListQuery';
 import { useTaskListViewMode } from '../hooks/useTaskListViewMode';
-import { filterTaskList } from '../utils/filterTaskList';
 
 import { AutoRefreshControl } from './AutoRefreshControl';
 import { FilterBar } from './FilterBar';
@@ -59,14 +58,25 @@ const Dashboard = () => {
   const searchParams = useSearchParams();
   const [isAutoRefreshPaused, setIsAutoRefreshPaused] = useState(false);
   const [viewMode, setViewMode] = useTaskListViewMode();
-  const { data, isLoading, isError, error, refetch, isRefetching, dataUpdatedAt } = useTaskListQuery({
-    isAutoRefreshEnabled: !isAutoRefreshPaused,
-  });
 
-  const q = searchParams.get('q') ?? '';
+  const customerName = searchParams.get('customerName') ?? '';
   const service = searchParams.get('service') ?? 'all';
   const status = searchParams.get('status') ?? 'all';
-  const [searchInput, setSearchInput] = useState(q);
+  const createdFrom = searchParams.get('createdFrom') ?? '';
+  const createdTo = searchParams.get('createdTo') ?? '';
+  const hasActiveFilters =
+    customerName !== '' || service !== 'all' || status !== 'all' || createdFrom !== '' || createdTo !== '';
+  const filters = useMemo(
+    () => ({ customerName, serviceType: service, status, createdFrom, createdTo }),
+    [customerName, service, status, createdFrom, createdTo]
+  );
+
+  const { data, isLoading, isError, error, refetch, isRefetching, dataUpdatedAt } = useTaskListQuery({
+    isAutoRefreshEnabled: !isAutoRefreshPaused,
+    filters,
+  });
+
+  const [searchInput, setSearchInput] = useState(customerName);
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const taskId = searchParams.get('taskId');
   const taskFromUrl = useMemo(() => data?.taskList.find((item) => item.id === taskId) ?? null, [data, taskId]);
@@ -75,11 +85,6 @@ const Dashboard = () => {
   // exit transition before the param (and the taskFromUrl content behind it) is cleared.
   // Initialized from taskId to support opening straight from a deep link.
   const [isTaskDetailOpen, setIsTaskDetailOpen] = useState(!!taskId);
-
-  const filteredTaskList = useMemo(
-    () => (data ? filterTaskList(data.taskList, { q, service, status }) : []),
-    [data, q, service, status]
-  );
 
   const updateParam = useCallback(
     (key: string, value: string, emptyValue: string) => {
@@ -101,7 +106,7 @@ const Dashboard = () => {
         clearTimeout(searchDebounceRef.current);
       }
       searchDebounceRef.current = setTimeout(() => {
-        updateParam('q', value, '');
+        updateParam('customerName', value, '');
       }, SEARCH_DEBOUNCE_MS);
     },
     [updateParam]
@@ -110,6 +115,10 @@ const Dashboard = () => {
   const handleServiceChange = useCallback((value: string) => updateParam('service', value, 'all'), [updateParam]);
 
   const handleStatusChange = useCallback((value: string) => updateParam('status', value, 'all'), [updateParam]);
+
+  const handleCreatedFromChange = useCallback((value: string) => updateParam('createdFrom', value, ''), [updateParam]);
+
+  const handleCreatedToChange = useCallback((value: string) => updateParam('createdTo', value, ''), [updateParam]);
 
   const handleSelectTask = useCallback(
     (id: string) => {
@@ -160,9 +169,13 @@ const Dashboard = () => {
           search={searchInput}
           service={service}
           status={status}
+          createdFrom={createdFrom}
+          createdTo={createdTo}
           onSearchChange={handleSearchChange}
           onServiceChange={handleServiceChange}
           onStatusChange={handleStatusChange}
+          onCreatedFromChange={handleCreatedFromChange}
+          onCreatedToChange={handleCreatedToChange}
         />
 
         <SearchResultWrapper
@@ -190,14 +203,14 @@ const Dashboard = () => {
                 </ControlsPaper>
               </ToolbarRow>
 
-              {filteredTaskList.length === 0 ? (
+              {data.taskList.length === 0 ? (
                 <Alert severity="info" variant="outlined">
-                  {data.taskList.length === 0 ? 'No consultation requests yet.' : 'No requests match your filters.'}
+                  {hasActiveFilters ? 'No requests match your filters.' : 'No consultation requests yet.'}
                 </Alert>
               ) : viewMode === 'grid' ? (
-                <TaskGrid taskList={filteredTaskList} isRefreshing={isRefetching} />
+                <TaskGrid taskList={data.taskList} isRefreshing={isRefetching} />
               ) : (
-                <TaskList taskList={filteredTaskList} onSelectTask={handleSelectTask} isRefreshing={isRefetching} />
+                <TaskList taskList={data.taskList} onSelectTask={handleSelectTask} isRefreshing={isRefetching} />
               )}
             </Stack>
           )}

@@ -8,7 +8,7 @@ import { buildTaskListSummary } from '@/modules/dashboard/utils/transforms/trans
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
 import { taskKeys } from '@/shared/hooks/api/tasks/taskKeys';
-import { fetchTask, fetchTaskList, updateTaskStatus } from '@/shared/services/api/tasks';
+import { fetchTaskList, updateTaskStatus } from '@/shared/services/api/tasks';
 import { ITaskItemResponse } from '@/shared/types/api/tasks';
 
 import { useTaskListQuery } from './useTaskListQuery';
@@ -17,7 +17,6 @@ import { useUpdateTaskStatusMutation } from './useUpdateTaskStatusMutation';
 jest.mock('@/shared/services/api/tasks');
 
 const mockFetchTaskList = fetchTaskList as jest.MockedFunction<typeof fetchTaskList>;
-const mockFetchTask = fetchTask as jest.MockedFunction<typeof fetchTask>;
 const mockUpdateTaskStatus = updateTaskStatus as jest.MockedFunction<typeof updateTaskStatus>;
 
 const makeRawTask = (overrides: Partial<ITaskItemResponse> = {}): ITaskItemResponse => {
@@ -51,7 +50,6 @@ const newClient = () => {
 describe('useUpdateTaskStatusMutation', () => {
   beforeEach(() => {
     mockFetchTaskList.mockReset();
-    mockFetchTask.mockReset();
     mockUpdateTaskStatus.mockReset();
   });
 
@@ -104,7 +102,7 @@ describe('useUpdateTaskStatusMutation', () => {
       summary: buildTaskListSummary(originalList),
     };
     queryClient.setQueryData(taskKeys.detail('1'), original);
-    queryClient.setQueryData(taskKeys.all, originalListCache);
+    queryClient.setQueryData(taskKeys.list(), originalListCache);
 
     const { result } = renderHook(() => useUpdateTaskStatusMutation(), {
       wrapper: createWrapper(queryClient),
@@ -114,6 +112,6 @@ describe('useUpdateTaskStatusMutation', () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(queryClient.getQueryData(taskKeys.detail('1'))).toEqual(original);
-    expect(queryClient.getQueryData(taskKeys.all)).toEqual(originalListCache);
+    expect(queryClient.getQueryData(taskKeys.list())).toEqual(originalListCache);
   });
 });

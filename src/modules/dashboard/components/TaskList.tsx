@@ -32,7 +32,7 @@ const COLUMN_MIN_WIDTH = {
   symptom: 45,
   requested: 20,
   status: 16,
-} as const;
+};
 
 type TTaskListColumn = keyof typeof COLUMN_MIN_WIDTH;
 

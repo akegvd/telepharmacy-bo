@@ -1,11 +1,14 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import dayjs from 'dayjs';
 
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
 import { fetchTaskList } from '@/shared/services/api/tasks';
 import { ITaskItemResponse } from '@/shared/types/api/tasks';
+
+import { typeDateField } from '../mocks/datePickerField';
 
 jest.mock('@/shared/services/api/tasks');
 
@@ -141,7 +144,7 @@ describe('Dashboard', () => {
     expect(mockReplace).not.toHaveBeenCalled();
 
     await jest.advanceTimersByTimeAsync(300);
-    expect(mockReplace).toHaveBeenCalledWith('/?q=abc', { scroll: false });
+    expect(mockReplace).toHaveBeenCalledWith('/?customerName=abc', { scroll: false });
 
     jest.useRealTimers();
   });
@@ -164,11 +167,59 @@ describe('Dashboard', () => {
 
   it('shows a filtered empty state when filters exclude every task', async () => {
     searchParams = new URLSearchParams({ status: 'completed' });
-    mockFetchTaskList.mockResolvedValue([makeRawTask({ id: '1', status: TASK_STATUS.NEW })]);
+    // The API is expected to apply the filter server-side, so it returns nothing here.
+    mockFetchTaskList.mockResolvedValue([]);
 
     renderDashboard();
 
     expect(await screen.findByText('No requests match your filters.')).toBeInTheDocument();
+    expect(mockFetchTaskList).toHaveBeenCalledWith({ status: TASK_STATUS.COMPLETED });
+  });
+
+  it('sends filters to the API using json-server style query params', async () => {
+    searchParams = new URLSearchParams({ customerName: 'Somchai', service: 'chat', status: 'new' });
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', serviceType: SERVICE_TYPE.CHAT, status: TASK_STATUS.NEW }),
+    ]);
+
+    renderDashboard();
+
+    await screen.findByText('Somchai P.');
+    expect(mockFetchTaskList).toHaveBeenCalledWith({
+      customerName_like: 'Somchai',
+      serviceType: SERVICE_TYPE.CHAT,
+      status: TASK_STATUS.NEW,
+    });
+  });
+
+  it('sends a createdAt date range to the API when set in the URL', async () => {
+    searchParams = new URLSearchParams({ createdFrom: '2026-08-01', createdTo: '2026-08-15' });
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+    ]);
+
+    renderDashboard();
+
+    await screen.findByText('Somchai P.');
+    expect(mockFetchTaskList).toHaveBeenCalledWith({
+      createdAt_gte: dayjs('2026-08-01').startOf('day').toISOString(),
+      createdAt_lte: dayjs('2026-08-15').endOf('day').toISOString(),
+    });
+  });
+
+  it('updates the URL when the created-from date filter changes', async () => {
+    const user = userEvent.setup();
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+    ]);
+
+    renderDashboard();
+    await screen.findByText('Somchai P.');
+    mockReplace.mockClear();
+
+    await typeDateField(user, 'Created from', '08012026');
+
+    expect(mockReplace).toHaveBeenCalledWith('/?createdFrom=2026-08-01', { scroll: false });
   });
 
   it('pushes the taskId query param when a task row is clicked', async () => {
