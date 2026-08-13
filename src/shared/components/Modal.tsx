@@ -1,15 +1,28 @@
 'use client';
 
 import CloseIcon from '@mui/icons-material/Close';
-import { Dialog, DialogContent, IconButton } from '@mui/material';
+import { Dialog, DialogContent, IconButton, styled } from '@mui/material';
 
-export const Modal = ({ children, onClose }: { children: React.ReactNode; onClose: () => void }) => {
+interface IModalProps {
+  children: React.ReactNode;
+  open: boolean;
+  onClose: () => void;
+  onExited?: () => void;
+}
+
+const CloseButton = styled(IconButton)(({ theme }) => ({
+  position: 'absolute',
+  right: theme.spacing(1),
+  top: theme.spacing(1),
+}));
+
+export const Modal = ({ children, open, onClose, onExited }: IModalProps) => {
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="sm">
-      <IconButton aria-label="Close" onClick={onClose} sx={{ position: 'absolute', right: 8, top: 8 }}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" slotProps={{ transition: { onExited } }}>
+      <CloseButton aria-label="Close" onClick={onClose}>
         <CloseIcon />
-      </IconButton>
-      <DialogContent sx={{ pt: 5 }}>{children}</DialogContent>
+      </CloseButton>
+      <DialogContent sx={{ pt: 5, pr: 6 }}>{children}</DialogContent>
     </Dialog>
   );
 };

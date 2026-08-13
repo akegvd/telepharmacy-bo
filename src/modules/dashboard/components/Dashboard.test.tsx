@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { VirtuosoMockContext } from 'react-virtuoso';
 
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
@@ -38,11 +37,9 @@ import Dashboard from './Dashboard';
 const renderDashboard = () => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <VirtuosoMockContext.Provider value={{ viewportHeight: 1000, itemHeight: 61 }}>
-      <QueryClientProvider client={queryClient}>
-        <Dashboard />
-      </QueryClientProvider>
-    </VirtuosoMockContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <Dashboard />
+    </QueryClientProvider>
   );
 };
 
@@ -52,6 +49,7 @@ describe('Dashboard', () => {
     mockPush.mockClear();
     mockReplace.mockClear();
     searchParams = new URLSearchParams();
+    window.localStorage.clear();
   });
 
   it('shows a loading spinner before tasks resolve', () => {
@@ -117,8 +115,7 @@ describe('Dashboard', () => {
     // 1 flagged: the missing-name task. Both id-"2" rows are kept, not dropped, but duplicate ids aren't flagged.
     expect(await screen.findByText('Nutcha R.')).toBeInTheDocument();
     expect(screen.getByText('Duplicate')).toBeInTheDocument();
-    const flaggedLabel = screen.getByText('Flagged');
-    expect(flaggedLabel.previousSibling).toHaveTextContent('1');
+    expect(screen.getByText('1 Flagged')).toBeInTheDocument();
   });
 
   it('shows an empty state message when there are no tasks', async () => {
@@ -127,6 +124,42 @@ describe('Dashboard', () => {
     renderDashboard();
 
     expect(await screen.findByText('No consultation requests yet.')).toBeInTheDocument();
+  });
+
+  it('debounces search input before updating the URL', async () => {
+    jest.useFakeTimers({ advanceTimers: true });
+    const user = userEvent.setup({ delay: null });
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+    ]);
+
+    renderDashboard();
+    await screen.findByText('Somchai P.');
+    mockReplace.mockClear();
+
+    await user.type(screen.getByLabelText('Search customer'), 'abc');
+    expect(mockReplace).not.toHaveBeenCalled();
+
+    await jest.advanceTimersByTimeAsync(300);
+    expect(mockReplace).toHaveBeenCalledWith('/?q=abc', { scroll: false });
+
+    jest.useRealTimers();
+  });
+
+  it('updates the URL immediately when the service filter changes', async () => {
+    const user = userEvent.setup();
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+    ]);
+
+    renderDashboard();
+    await screen.findByText('Somchai P.');
+    mockReplace.mockClear();
+
+    await user.click(screen.getByLabelText('Service'));
+    await user.click(await screen.findByRole('option', { name: 'video call' }));
+
+    expect(mockReplace).toHaveBeenCalledWith('/?service=video_call', { scroll: false });
   });
 
   it('shows a filtered empty state when filters exclude every task', async () => {
@@ -138,7 +171,7 @@ describe('Dashboard', () => {
     expect(await screen.findByText('No requests match your filters.')).toBeInTheDocument();
   });
 
-  it('pushes the id query param when the view detail action is clicked', async () => {
+  it('pushes the taskId query param when a task row is clicked', async () => {
     const user = userEvent.setup();
     mockFetchTaskList.mockResolvedValue([
       makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
@@ -147,14 +180,14 @@ describe('Dashboard', () => {
     renderDashboard();
 
     await screen.findByText('Somchai P.');
-    await user.click(screen.getByRole('button', { name: 'View detail' }));
+    await user.click(screen.getByText('Somchai P.'));
 
-    expect(mockPush).toHaveBeenCalledWith('/?id=1', { scroll: false });
+    expect(mockPush).toHaveBeenCalledWith('/?taskId=1', { scroll: false });
   });
 
-  it('shows the task detail modal when the id query param is present, and closes it by removing the param', async () => {
+  it('shows the task detail modal when the taskId query param is present, and closes it by removing the param', async () => {
     const user = userEvent.setup();
-    searchParams = new URLSearchParams({ id: '1' });
+    searchParams = new URLSearchParams({ taskId: '1' });
     mockFetchTaskList.mockResolvedValue([
       makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
     ]);
@@ -165,6 +198,60 @@ describe('Dashboard', () => {
 
     await user.click(screen.getByRole('button', { name: 'Close' }));
 
-    expect(mockPush).toHaveBeenCalledWith('/?', { scroll: false });
+    // The taskId param is only cleared once the dialog's exit transition finishes.
+    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/?', { scroll: false }));
+  });
+
+  it('switches to card view and persists the choice in localStorage', async () => {
+    const user = userEvent.setup();
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+    ]);
+
+    renderDashboard();
+
+    await screen.findByText('Somchai P.');
+    expect(screen.queryByText('Reason for consultation')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Card view' }));
+
+    expect(screen.getByText('Reason for consultation')).toBeInTheDocument();
+    expect(window.localStorage.getItem('dashboard:taskListViewMode')).toBe(JSON.stringify('grid'));
+  });
+
+  it('restores the card view from localStorage on load', async () => {
+    window.localStorage.setItem('dashboard:taskListViewMode', JSON.stringify('grid'));
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+    ]);
+
+    renderDashboard();
+
+    expect(await screen.findByText('Reason for consultation')).toBeInTheDocument();
+  });
+
+  it('stops polling while paused and refetches immediately on resume', async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+    ]);
+
+    renderDashboard();
+
+    await screen.findByText('Somchai P.');
+    expect(mockFetchTaskList).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole('button', { name: 'Pause auto-refresh' }));
+
+    await jest.advanceTimersByTimeAsync(30_000);
+    expect(mockFetchTaskList).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole('button', { name: 'Resume auto-refresh' }));
+
+    await jest.advanceTimersByTimeAsync(0);
+    expect(mockFetchTaskList).toHaveBeenCalledTimes(2);
+
+    jest.useRealTimers();
   });
 });

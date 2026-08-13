@@ -29,7 +29,7 @@ describe('Sidebar', () => {
   });
 
   it('does not mark the Dashboard nav item as selected on other routes', () => {
-    pathname = '/task/123';
+    pathname = '/other';
     render(<Sidebar />);
 
     expect(screen.getByRole('link', { name: 'Dashboard' })).not.toHaveClass('Mui-selected');

@@ -4,7 +4,11 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 
 import { theme } from './theme';
 
-export const AppThemeProvider = ({ children }: { children: React.ReactNode }) => {
+interface IAppThemeProviderProps {
+  children: React.ReactNode;
+}
+
+export const AppThemeProvider = ({ children }: IAppThemeProviderProps) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

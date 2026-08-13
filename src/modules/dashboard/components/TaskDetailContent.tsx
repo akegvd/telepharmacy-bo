@@ -1,96 +1,91 @@
 'use client';
 
-import { Alert, Box, Button, Stack, Typography } from '@mui/material';
+import { Button, Stack, styled, Typography } from '@mui/material';
+import { useCallback, useState } from 'react';
 
-import { SearchResultWrapper } from '@/shared/components/SearchResultWrapper';
-import { useTaskQuery } from '@/shared/hooks/api/tasks/useTaskQuery';
-import { useUpdateTaskStatusMutation } from '@/shared/hooks/api/tasks/useUpdateTaskStatusMutation';
+import ConfirmDialog from '@/shared/components/ConfirmDialog';
+import TASK_STATUS from '@/shared/enums/api/tasks/status';
+import { useToast } from '@/shared/hooks/useToast';
 
-import { mapDisplayStatusLabelByStatus } from '../constants/mapDisplayStatusLabelByStatus';
-import { formatTaskDate, getNextStatus } from '../utils/taskDisplay';
+import DATA_ISSUE from '../enums/dataIssue';
+import { useUpdateTaskStatusMutation } from '../hooks/useUpdateTaskStatusMutation';
+import { ITransformTaskItemResponse } from '../types/utils/transforms/transformTaskListResponse';
 
-import { ServiceTypeIcon } from './ServiceTypeIcon';
-import { StatusChip } from './StatusChip';
+import { TaskSummary } from './TaskSummary';
 
-const ISSUE_LABELS: Record<string, string> = {
-  missing_name: 'The customer name was missing from this request.',
-  unknown_service_type: "The service type wasn't recognized, so the raw value from the source data is shown.",
-  unknown_status: "The status wasn't recognized, so workflow actions are disabled for this request.",
-  missing_symptom: 'No symptom description was provided.',
-  invalid_date: "The request date is missing or couldn't be parsed.",
-};
+interface ITaskDetailContentProps {
+  task: ITransformTaskItemResponse;
+}
 
-export const TaskDetailContent = ({ id }: { id: string }) => {
-  const { data: task, isLoading, isError } = useTaskQuery(id);
+const Footer = styled(Stack)({
+  justifyContent: 'flex-end',
+});
+
+export const TaskDetailContent = ({ task }: ITaskDetailContentProps) => {
   const mutation = useUpdateTaskStatusMutation();
-  const nextStatus = task ? getNextStatus(task.status) : undefined;
-  const isKnownStatus = task ? task.status in mapDisplayStatusLabelByStatus : true;
+  const { showToast } = useToast();
+  const nextStatus = task.nextStatus;
+  const [isConfirmingAdvance, setIsConfirmingAdvance] = useState(false);
+
+  const handleConfirmAdvance = useCallback(() => {
+    if (!nextStatus) {
+      return;
+    }
+
+    const nextStatusLabel = task.displayNextStatus;
+    mutation.mutate(
+      { id: task.id, status: nextStatus },
+      {
+        onSuccess: () => {
+          setIsConfirmingAdvance(false);
+          showToast(`Advanced to ${nextStatusLabel}.`, { variant: 'success' });
+        },
+        onError: () => {
+          setIsConfirmingAdvance(false);
+          showToast("Couldn't update the status. Please try again.", { variant: 'error' });
+        },
+      }
+    );
+  }, [mutation, nextStatus, showToast, task.displayNextStatus, task.id]);
+
+  const handleAdvanceClick = useCallback(() => {
+    setIsConfirmingAdvance(true);
+  }, []);
+
+  const handleCancelAdvance = useCallback(() => {
+    setIsConfirmingAdvance(false);
+  }, []);
 
   return (
-    <SearchResultWrapper
-      isLoading={isLoading}
-      isError={isError || !task}
-      errorMessage="This request could not be found."
-    >
-      {task && (
-        <Stack spacing={2}>
-          <Box>
-            <Stack direction="row" spacing={1} sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                {task.displayCustomerName}
-              </Typography>
-              <StatusChip status={task.status} />
-            </Stack>
-            <Stack direction="row" spacing={0.5} sx={{ mt: 0.5, alignItems: 'center', color: 'text.secondary' }}>
-              <ServiceTypeIcon serviceType={task.serviceType} />
-              <Typography variant="body2">{task.displayServiceType}</Typography>
-              <Typography variant="body2">·</Typography>
-              <Typography variant="body2">{formatTaskDate(task.displayCreatedAt)}</Typography>
-            </Stack>
-          </Box>
+    <Stack spacing={2}>
+      <TaskSummary task={task} />
 
-          <Box>
-            <Typography variant="overline" color="text.secondary">
-              Reason for consultation
-            </Typography>
-            <Typography variant="body1">{task.displaySymptom}</Typography>
-          </Box>
+      <Footer direction="row">
+        {nextStatus ? (
+          <Button variant="contained" onClick={handleAdvanceClick}>
+            Advance to {task.displayNextStatus}
+          </Button>
+        ) : task.issues.includes(DATA_ISSUE.UNKNOWN_STATUS) ? (
+          <Typography variant="body2" color="text.secondary">
+            Status not recognized — workflow actions are unavailable.
+          </Typography>
+        ) : task.status === TASK_STATUS.COMPLETED ? (
+          <Typography variant="body2" color="text.secondary">
+            This request has been completed.
+          </Typography>
+        ) : null}
+      </Footer>
 
-          {task.issues.length > 0 && (
-            <Alert severity="warning" variant="outlined">
-              <Stack spacing={0.5}>
-                {task.issues.map((issue) => (
-                  <Typography key={issue} variant="body2">
-                    {ISSUE_LABELS[issue] ?? issue}
-                  </Typography>
-                ))}
-              </Stack>
-            </Alert>
-          )}
-
-          {mutation.isError && <Alert severity="error">Couldn&apos;t update the status. Please try again.</Alert>}
-
-          <Stack direction="row" sx={{ justifyContent: 'flex-end' }}>
-            {nextStatus ? (
-              <Button
-                variant="contained"
-                loading={mutation.isPending}
-                onClick={() => mutation.mutate({ id: task.id, status: nextStatus })}
-              >
-                Advance to {mapDisplayStatusLabelByStatus[nextStatus]}
-              </Button>
-            ) : isKnownStatus ? (
-              <Typography variant="body2" color="text.secondary">
-                This request has been completed.
-              </Typography>
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                Status not recognized — workflow actions are unavailable.
-              </Typography>
-            )}
-          </Stack>
-        </Stack>
+      {nextStatus && (
+        <ConfirmDialog
+          open={isConfirmingAdvance}
+          title={`Advance ${task.displayCustomerName}'s request to ${task.displayNextStatus}?`}
+          confirmLabel="Confirm"
+          loading={mutation.isPending}
+          onCancel={handleCancelAdvance}
+          onConfirm={handleConfirmAdvance}
+        />
       )}
-    </SearchResultWrapper>
+    </Stack>
   );
 };

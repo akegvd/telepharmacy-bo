@@ -1,9 +1,9 @@
 'use client';
 
-import { ErrorPage } from '@/shared/components/ErrorPage';
+import { ErrorPage, IAppError } from '@/shared/components/ErrorPage';
 
 interface IErrorProps {
-  error: Error & { digest?: string };
+  error: IAppError;
   reset: () => void;
 }
 

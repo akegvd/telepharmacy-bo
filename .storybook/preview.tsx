@@ -1,3 +1,5 @@
+import { SnackbarProvider } from '../src/shared/components/SnackbarProvider';
+import { LoadingProvider } from '../src/shared/contexts/LoadingContext';
 import { AppThemeProvider } from '../src/theme';
 
 import type { Preview } from '@storybook/nextjs-vite';
@@ -6,7 +8,11 @@ const preview: Preview = {
   decorators: [
     (Story) => (
       <AppThemeProvider>
-        <Story />
+        <LoadingProvider>
+          <SnackbarProvider>
+            <Story />
+          </SnackbarProvider>
+        </LoadingProvider>
       </AppThemeProvider>
     ),
   ],

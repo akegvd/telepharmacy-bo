@@ -30,8 +30,12 @@ const makeRawTask = (overrides: Partial<ITaskItemResponse> = {}): ITaskItemRespo
   };
 };
 
+interface IWrapperProps {
+  children: ReactNode;
+}
+
 const createWrapper = (queryClient: QueryClient) => {
-  const Wrapper = ({ children }: { children: ReactNode }) => {
+  const Wrapper = ({ children }: IWrapperProps) => {
     return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
   };
 

@@ -1,4 +1,6 @@
-import { Box, Container, Stack, Typography } from '@mui/material';
+'use client';
+
+import { Box, Container, Stack, styled, Typography } from '@mui/material';
 
 type TStatusPageTone = 'primary' | 'error';
 
@@ -12,16 +14,55 @@ interface IStatusPageProps {
   children?: React.ReactNode;
 }
 
-const TONE_SX = {
-  primary: {
-    bgcolor: 'primary.lighter',
-    color: 'primary.main',
+interface IToneProps {
+  tone: TStatusPageTone;
+}
+
+const Root = styled(Container)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: '70vh',
+  [theme.breakpoints.up('sm')]: {
+    minHeight: '75vh',
   },
-  error: {
-    bgcolor: 'error.lighter',
-    color: 'error.main',
+}));
+
+const Content = styled(Stack)({
+  alignItems: 'center',
+  textAlign: 'center',
+}) as typeof Stack;
+
+const IconBadge = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'tone',
+})<IToneProps>(({ theme, tone }) => ({
+  width: 96,
+  height: 96,
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: theme.palette[tone].lighter,
+  color: theme.palette[tone].main,
+}));
+
+const StatusCode = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'tone',
+})<IToneProps>(({ theme, tone }) => ({
+  fontWeight: 800,
+  fontSize: 72,
+  lineHeight: 1,
+  letterSpacing: -2,
+  color: theme.palette[tone].main,
+  [theme.breakpoints.up('sm')]: {
+    fontSize: 96,
   },
-} as const;
+}));
+
+const Actions = styled(Stack)({
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+});
 
 export const StatusPage = ({
   icon,
@@ -35,53 +76,18 @@ export const StatusPage = ({
   const titleId = 'status-page-title';
 
   return (
-    <Container
-      maxWidth="sm"
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: { xs: '70vh', sm: '75vh' },
-        py: 4,
-      }}
-    >
-      <Stack
-        component="section"
-        aria-labelledby={titleId}
-        spacing={2}
-        sx={{ alignItems: 'center', textAlign: 'center' }}
-      >
-        <Box
-          sx={{
-            width: 96,
-            height: 96,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            ...TONE_SX[tone],
-          }}
-        >
-          {icon}
-        </Box>
+    <Root maxWidth="sm" sx={{ py: 4 }}>
+      <Content component="section" aria-labelledby={titleId} spacing={2}>
+        <IconBadge tone={tone}>{icon}</IconBadge>
 
         {code ? (
-          <Typography
-            variant="h1"
-            sx={{
-              fontWeight: 800,
-              fontSize: { xs: 72, sm: 96 },
-              lineHeight: 1,
-              letterSpacing: -2,
-              color: `${tone}.main`,
-            }}
-          >
+          <StatusCode variant="h1" tone={tone}>
             {code}
-          </Typography>
+          </StatusCode>
         ) : null}
 
         <Box>
-          <Typography id={titleId} variant="h4" component="h1" sx={{ fontWeight: 700 }}>
+          <Typography id={titleId} variant="h4" component="h1">
             {title}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
@@ -96,11 +102,11 @@ export const StatusPage = ({
         ) : null}
 
         {children ? (
-          <Stack direction="row" spacing={1.5} sx={{ pt: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Actions direction="row" spacing={1.5} sx={{ pt: 1 }}>
             {children}
-          </Stack>
+          </Actions>
         ) : null}
-      </Stack>
-    </Container>
+      </Content>
+    </Root>
   );
 };

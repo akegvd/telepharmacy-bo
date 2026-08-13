@@ -1,8 +1,26 @@
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
+import { ITaskItemResponse } from '@/shared/types/api/tasks';
 
-import { ITransformTask } from './transformTask';
+import DATA_ISSUE from '../../../enums/dataIssue';
+import { TStatusColor } from '../../taskStatus';
 
-/** Precomputed once per fetch so components can read counts by key instead of re-scanning `taskList`. */
+export interface ITransformTaskItemResponse extends Pick<
+  ITaskItemResponse,
+  'customerName' | 'serviceType' | 'status' | 'symptom' | 'createdAt'
+> {
+  id: string;
+  displayCustomerName: string;
+  displayServiceType: string;
+  displayStatus: string;
+  displayStatusColor: TStatusColor | null;
+  displaySymptom: string;
+  displayCreatedAt: string;
+  nextStatus: TASK_STATUS | null;
+  displayNextStatus: string;
+  displayNextStatusColor: TStatusColor | null;
+  issues: DATA_ISSUE[];
+}
+
 export interface ITaskListSummary {
   total: number;
   flaggedCount: number;
@@ -10,6 +28,6 @@ export interface ITaskListSummary {
 }
 
 export interface ITransformTaskListResponse {
-  taskList: ITransformTask[];
+  taskList: ITransformTaskItemResponse[];
   summary: ITaskListSummary;
 }

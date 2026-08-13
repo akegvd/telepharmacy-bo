@@ -1,32 +1,9 @@
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
 
-import { ITransformTask } from '../types/utils/transforms/transformTask';
+import { makeTask } from '../mocks/taskFixtures';
 
 import { filterTaskList } from './filterTaskList';
-
-const makeTask = (overrides: Partial<ITransformTask>): ITransformTask => {
-  return {
-    id: '1',
-    customerName: 'Somchai P.',
-    displayCustomerName: 'Somchai P.',
-    serviceType: SERVICE_TYPE.VIDEO_CALL,
-    displayServiceType: SERVICE_TYPE.VIDEO_CALL,
-    status: TASK_STATUS.NEW,
-    displayStatus: TASK_STATUS.NEW,
-    displaySymptom: 'Cough',
-    displayCreatedAt: '2026-08-09T09:00:00.000Z',
-    issues: [],
-    raw: {
-      customerName: 'Somchai P.',
-      serviceType: 'video_call',
-      symptom: 'Cough',
-      status: 'new',
-      createdAt: '2026-08-09T09:00:00.000Z',
-    },
-    ...overrides,
-  };
-};
 
 describe('filterTaskList', () => {
   const taskList = [

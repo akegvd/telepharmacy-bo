@@ -1,16 +1,16 @@
 import { Chip } from '@mui/material';
 
-import { mapDisplayStatusColorByStatus } from '../constants/mapDisplayStatusColorByStatus';
-import { mapDisplayStatusLabelByStatus } from '../constants/mapDisplayStatusLabelByStatus';
 import { TStatusColor } from '../types/taskStatus';
 
-export const StatusChip = ({ status }: { status: string }) => {
-  const displayLabel = (mapDisplayStatusLabelByStatus as Partial<Record<string, string>>)[status];
-  const displayColor = (mapDisplayStatusColorByStatus as Partial<Record<string, TStatusColor>>)[status];
+interface IStatusChipProps {
+  label: string;
+  color?: TStatusColor | null;
+}
 
-  if (!displayLabel || !displayColor) {
-    return <Chip size="small" label={status || 'Unrecognized'} variant="outlined" />;
+export const StatusChip = ({ label, color }: IStatusChipProps) => {
+  if (!color) {
+    return <Chip size="small" label={label || 'Unrecognized'} variant="outlined" />;
   }
 
-  return <Chip size="small" label={displayLabel} color={displayColor} variant="filled" />;
+  return <Chip size="small" label={label} color={color} variant="filled" />;
 };

@@ -1,206 +1,185 @@
 'use client';
 
-import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
-import EditDocumentIcon from '@mui/icons-material/EditDocument';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import {
-  IconButton,
+  alpha,
+  Box,
   Stack,
+  styled,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
-  Tooltip,
   Typography,
 } from '@mui/material';
-import { memo, useCallback, useMemo, useState } from 'react';
-import { TableComponents, TableVirtuoso } from 'react-virtuoso';
+import { KeyboardEvent, memo, useCallback, useMemo } from 'react';
 
-import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
-import TASK_STATUS from '@/shared/enums/api/tasks/status';
-import { useUpdateTaskStatusMutation } from '@/shared/hooks/api/tasks/useUpdateTaskStatusMutation';
+import { LoadingSpinner } from '@/shared/components/LoadingSpinner';
 
-import { mapDisplayStatusColorByStatus } from '../constants/mapDisplayStatusColorByStatus';
-import { mapDisplayStatusLabelByStatus } from '../constants/mapDisplayStatusLabelByStatus';
 import { taskListHeight, taskListTableMinWidth } from '../constants/taskList';
-import { ITransformTask } from '../types/utils/transforms/transformTask';
-import { formatTaskDate, getNextStatus } from '../utils/taskDisplay';
+import { ITransformTaskItemResponse } from '../types/utils/transforms/transformTaskListResponse';
 
 import { ServiceTypeIcon } from './ServiceTypeIcon';
 import { StatusChip } from './StatusChip';
 
-const ISSUE_LABELS: Record<string, string> = {
-  missing_name: 'Customer name was missing',
-  unknown_service_type: 'Unrecognized service type (showing raw value)',
-  unknown_status: 'Unrecognized status (workflow disabled)',
-  missing_symptom: 'Symptom description was missing',
-  invalid_date: 'Request date missing or invalid',
-};
+const DATA_ISSUE_REMARK = 'Some data invalid';
 
-const TASK_LIST_COLUMN_COUNT = 6;
+const COLUMN_MIN_WIDTH = {
+  customer: 28,
+  service: 18,
+  symptom: 45,
+  requested: 20,
+  status: 16,
+} as const;
 
-type TTaskListRow =
-  | { kind: 'task'; task: ITransformTask; rowGroupIndex: number }
-  | { kind: 'issues'; taskId: string; label: string; rowGroupIndex: number };
+type TTaskListColumn = keyof typeof COLUMN_MIN_WIDTH;
 
-const buildTaskListRows = (taskList: ITransformTask[]): TTaskListRow[] => {
-  return taskList.flatMap((task, rowGroupIndex) => {
-    if (task.issues.length === 0) {
-      return [{ kind: 'task', task, rowGroupIndex }];
-    }
-
-    return [
-      { kind: 'task', task, rowGroupIndex },
-      {
-        kind: 'issues',
-        taskId: task.id,
-        rowGroupIndex,
-        label: task.issues.map((issue) => ISSUE_LABELS[issue] ?? issue).join(' · '),
-      },
-    ];
-  });
-};
-
-const components: TableComponents<TTaskListRow> = {
-  Table: (props) => <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: taskListTableMinWidth }} {...props} />,
-  TableHead,
-  TableBody,
-  TableRow: ({ item, ...props }) => (
-    <TableRow
-      aria-label={item.kind === 'task' ? `Request from ${item.task.displayCustomerName}` : undefined}
-      sx={{ bgcolor: item.rowGroupIndex % 2 === 1 ? 'action.hover' : 'background.paper' }}
-      {...props}
-    />
-  ),
-};
-
-const fixedHeaderContent = () => (
-  <TableRow>
-    <TableCell sx={{ minWidth: (theme) => theme.spacing(28) }}>Customer</TableCell>
-    <TableCell sx={{ minWidth: (theme) => theme.spacing(18) }}>Service</TableCell>
-    <TableCell sx={{ minWidth: (theme) => theme.spacing(45) }}>Symptom</TableCell>
-    <TableCell sx={{ minWidth: (theme) => theme.spacing(20) }}>Requested</TableCell>
-    <TableCell sx={{ minWidth: (theme) => theme.spacing(16) }} align="center">
-      Status
-    </TableCell>
-    <TableCell sx={{ minWidth: (theme) => theme.spacing(24) }} align="right">
-      Action
-    </TableCell>
-  </TableRow>
-);
-
-interface IPendingAdvance {
-  id: string;
-  customerName: string;
-  status: TASK_STATUS;
+interface ITaskListCellProps {
+  column: TTaskListColumn;
 }
 
-const TaskList = ({ taskList, onSelectTask }: { taskList: ITransformTask[]; onSelectTask: (id: string) => void }) => {
-  const mutation = useUpdateTaskStatusMutation();
-  const [pendingAdvance, setPendingAdvance] = useState<IPendingAdvance | null>(null);
+interface ITaskListRowProps {
+  striped: boolean;
+}
 
-  const rows = useMemo(() => buildTaskListRows(taskList), [taskList]);
+const Root = styled(Box)({
+  position: 'relative',
+});
 
-  const itemContent = useCallback(
-    (_index: number, row: TTaskListRow) => {
-      if (row.kind === 'issues') {
-        return (
-          <TableCell colSpan={TASK_LIST_COLUMN_COUNT} sx={{ py: 0.5, borderBottom: 'none' }}>
-            <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', color: 'warning.dark' }}>
-              <WarningAmberIcon fontSize="small" />
-              <Typography variant="caption">{row.label}</Typography>
-            </Stack>
-          </TableCell>
-        );
-      }
+const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
+  height: taskListHeight,
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: theme.shape.borderRadius,
+}));
 
-      const { task } = row;
-      const nextStatus = getNextStatus(task.status);
+const RefreshOverlay = styled(Stack)(({ theme }) => ({
+  position: 'absolute',
+  inset: 0,
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: alpha(theme.palette.background.paper, 0.6),
+  borderRadius: theme.shape.borderRadius,
+  pointerEvents: 'none',
+}));
+
+const StyledTable = styled(Table)({
+  tableLayout: 'fixed',
+  minWidth: taskListTableMinWidth,
+});
+
+const TaskListRow = styled(TableRow, {
+  shouldForwardProp: (prop) => prop !== 'striped',
+})<ITaskListRowProps>(({ theme, striped }) => ({
+  backgroundColor: striped ? theme.palette.action.hover : theme.palette.background.paper,
+  cursor: 'pointer',
+  '&:hover': { backgroundColor: theme.palette.action.selected },
+  '&:focus-visible': { backgroundColor: theme.palette.action.selected, outline: 'none' },
+}));
+
+const TaskListCell = styled(TableCell, {
+  shouldForwardProp: (prop) => prop !== 'column',
+})<ITaskListCellProps>(({ theme, column }) => ({
+  minWidth: theme.spacing(COLUMN_MIN_WIDTH[column]),
+}));
+
+const RemarkLabel = styled(Stack)(({ theme }) => ({
+  alignItems: 'center',
+  color: theme.palette.warning.dark,
+}));
+
+const ServiceMeta = styled(Stack)(({ theme }) => ({
+  alignItems: 'center',
+  color: theme.palette.text.secondary,
+}));
+
+interface ITaskListProps {
+  taskList: ITransformTaskItemResponse[];
+  onSelectTask: (id: string) => void;
+  isRefreshing?: boolean;
+}
+
+const TaskList = ({ taskList, onSelectTask, isRefreshing = false }: ITaskListProps) => {
+  const rows = useMemo(() => taskList, [taskList]);
+
+  const renderRow = useCallback(
+    (task: ITransformTaskItemResponse, index: number) => {
+      const handleSelect = () => onSelectTask(task.id);
+      const handleKeyDown = (event: KeyboardEvent<HTMLTableRowElement>) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          handleSelect();
+        }
+      };
+      const hasDataIssue = task.issues.length > 0;
 
       return (
-        <>
-          <TableCell sx={{ minWidth: (theme) => theme.spacing(28) }}>
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              {task.displayCustomerName}
-            </Typography>
-          </TableCell>
-          <TableCell sx={{ minWidth: (theme) => theme.spacing(18) }}>
-            <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', color: 'text.secondary' }}>
-              <ServiceTypeIcon serviceType={task.serviceType} />
+        <TaskListRow
+          key={`${task.id}-${index}`}
+          role="button"
+          tabIndex={0}
+          aria-label={`Request from ${task.displayCustomerName}`}
+          striped={index % 2 === 1}
+          onClick={handleSelect}
+          onKeyDown={handleKeyDown}
+        >
+          <TaskListCell column="customer">
+            <Typography variant="body2">{task.displayCustomerName}</Typography>
+            {hasDataIssue && (
+              <RemarkLabel direction="row" spacing={0.5}>
+                <WarningAmberIcon sx={{ fontSize: 14 }} />
+                <Typography variant="caption">{DATA_ISSUE_REMARK}</Typography>
+              </RemarkLabel>
+            )}
+          </TaskListCell>
+          <TaskListCell column="service">
+            <ServiceMeta direction="row" spacing={0.5}>
+              <ServiceTypeIcon serviceType={task.serviceType ?? ''} />
               <Typography variant="body2">{task.displayServiceType}</Typography>
-            </Stack>
-          </TableCell>
-          <TableCell sx={{ minWidth: (theme) => theme.spacing(45) }}>
-            <Typography variant="body2">{task.displaySymptom ? `“${task.displaySymptom}”` : ''}</Typography>
-          </TableCell>
-          <TableCell sx={{ minWidth: (theme) => theme.spacing(20) }}>
+            </ServiceMeta>
+          </TaskListCell>
+          <TaskListCell column="symptom">
+            <Typography variant="body2">{task.displaySymptom}</Typography>
+          </TaskListCell>
+          <TaskListCell column="requested">
             <Typography variant="body2" color="text.secondary">
-              {formatTaskDate(task.displayCreatedAt)}
+              {task.displayCreatedAt}
             </Typography>
-          </TableCell>
-          <TableCell sx={{ minWidth: (theme) => theme.spacing(16) }} align="center">
-            <StatusChip status={task.status} />
-          </TableCell>
-          <TableCell sx={{ minWidth: (theme) => theme.spacing(24) }} align="right">
-            <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'flex-end' }}>
-              {nextStatus && (
-                <Tooltip title={`Advance to ${mapDisplayStatusLabelByStatus[nextStatus]}`}>
-                  <IconButton
-                    size="small"
-                    aria-label="Advance"
-                    color={mapDisplayStatusColorByStatus[nextStatus]}
-                    onClick={() =>
-                      setPendingAdvance({ id: task.id, customerName: task.displayCustomerName, status: nextStatus })
-                    }
-                  >
-                    <EditDocumentIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              )}
-              <Tooltip title="View detail">
-                <IconButton size="small" aria-label="View detail" onClick={() => onSelectTask(task.id)}>
-                  <DescriptionOutlinedIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          </TableCell>
-        </>
+          </TaskListCell>
+          <TaskListCell column="status" align="center">
+            <StatusChip label={task.displayStatus} color={task.displayStatusColor} />
+          </TaskListCell>
+        </TaskListRow>
       );
     },
     [onSelectTask]
   );
 
   return (
-    <>
-      <TableVirtuoso
-        style={{ height: taskListHeight }}
-        data={rows}
-        components={components}
-        fixedHeaderContent={fixedHeaderContent}
-        itemContent={itemContent}
-      />
-      <ConfirmDialog
-        open={pendingAdvance !== null}
-        title={
-          pendingAdvance
-            ? `Advance ${pendingAdvance.customerName}'s request to ${mapDisplayStatusLabelByStatus[pendingAdvance.status]}?`
-            : ''
-        }
-        confirmLabel="Confirm"
-        loading={mutation.isPending}
-        onCancel={() => setPendingAdvance(null)}
-        onConfirm={() => {
-          if (!pendingAdvance) {
-            return;
-          }
-          mutation.mutate(
-            { id: pendingAdvance.id, status: pendingAdvance.status },
-            { onSuccess: () => setPendingAdvance(null) }
-          );
-        }}
-      />
-    </>
+    <Root>
+      <StyledTableContainer>
+        <StyledTable stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TaskListCell column="customer">Customer</TaskListCell>
+              <TaskListCell column="service">Service</TaskListCell>
+              <TaskListCell column="symptom">Symptom</TaskListCell>
+              <TaskListCell column="requested">Requested</TaskListCell>
+              <TaskListCell column="status" align="center">
+                Status
+              </TaskListCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>{rows.map(renderRow)}</TableBody>
+        </StyledTable>
+      </StyledTableContainer>
+      {isRefreshing && (
+        <RefreshOverlay aria-live="polite" aria-label="Refreshing task list">
+          <LoadingSpinner size={32} />
+        </RefreshOverlay>
+      )}
+    </Root>
   );
 };
 

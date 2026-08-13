@@ -38,7 +38,6 @@ Follows the domain-driven layout in [`PROJECT_STRUCTURE.md`](./PROJECT_STRUCTURE
 src/
   app/
     page.tsx                    dashboard route (wraps the client Dashboard in Suspense)
-    task/page.tsx                full task detail page, reads ?id= (direct visit / refresh)
     api/tasks/route.ts          mock API: GET (list)
     api/tasks/[id]/route.ts     mock API: GET (detail), PATCH (status)
     api/tasks/_lib/tasksStore.ts  in-memory store backing the mock API, seeded from db.json
@@ -48,7 +47,7 @@ src/
     constants/                  status/service-type label, color and next-status lookup maps
     enums/dataIssue.ts          the data problems a task can be flagged with
     types/taskStatus.ts         TStatusColor — the palette colors a status can render as
-    types/utils/transforms/     ITransformTask / ITransformTaskListResponse (transform return types)
+    types/utils/transforms/     ITransformTaskItemResponse / ITransformTaskListResponse (transform return types)
     utils/
       transforms/transformTaskListResponse.ts  repairs/flags bad seed data at the API boundary
       filterTaskList.ts         pure search/service/status filter, unit tested
@@ -64,7 +63,7 @@ src/
   theme/                        MUI theme + AppThemeProvider
 ```
 
-**Detail view as a modal over client-side state.** Clicking a row pushes `?id=` onto the current dashboard URL (shareable, preserves filters) and `Dashboard` renders `TaskDetailContent` inside a `Modal` on top of the list; closing removes the param. Visiting `/task?id=` directly renders the same `TaskDetailContent` as a standalone full page instead. Both routes stay static — no dynamic route segments or intercepting routes — which keeps the app compatible with `output: 'export'`.
+**Detail view as a modal over client-side state.** Clicking a row pushes `?taskId=` onto the current dashboard URL (shareable, preserves filters) and `Dashboard` renders `TaskDetailContent` inside a `Modal` on top of the list; closing removes the param. The route stays static — no dynamic route segments or intercepting routes — which keeps the app compatible with `output: 'export'`.
 
 **Filters live in the URL** (`?q=&service=&status=`) via `useSearchParams`/`router.replace`, so a filtered view is bookmarkable/shareable. The search box is debounced (300ms) before it touches the URL.
 
@@ -72,7 +71,7 @@ src/
 
 ## Handling the bad seed data
 
-`db.json` includes a null customer name, an unrecognized `serviceType` (`phone_call`), an unrecognized `status` (`pending_review`), a blank symptom, an unparseable `createdAt`, a task missing `createdAt` entirely, and a duplicate `id`. `modules/dashboard/utils/transforms/transformTask.ts` is the single place raw API data gets validated — passed as `transformResponse` into the shared `shared/hooks/api/tasks/*` hooks, which apply it right after the raw fetch resolves:
+`db.json` includes a null customer name, an unrecognized `serviceType` (`phone_call`), an unrecognized `status` (`pending_review`), a blank symptom, an unparseable `createdAt`, a task missing `createdAt` entirely, and a duplicate `id`. `modules/dashboard/utils/transforms/transformTaskListResponse.ts` is the single place raw API data gets validated — passed as `transformResponse` into the shared `shared/hooks/api/tasks/*` hooks, which apply it right after the raw fetch resolves:
 
 - Bad/missing fields get a safe fallback (`"Unknown customer"`, `"No symptom description provided."`, `createdAt: null` → rendered as "Unknown date" instead of `Invalid Date`) and the repair is recorded in `issues: DataIssue[]`.
 - An unrecognized status falls back to `new` rather than breaking the `new → in_progress → completed` progression.

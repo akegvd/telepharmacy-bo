@@ -12,7 +12,11 @@ export interface ILoadingContextValue {
 
 export const LoadingContext = createContext<ILoadingContextValue | null>(null);
 
-export const LoadingProvider = ({ children }: { children: React.ReactNode }) => {
+interface ILoadingProviderProps {
+  children: React.ReactNode;
+}
+
+export const LoadingProvider = ({ children }: ILoadingProviderProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const showLoading = useCallback(() => setIsLoading(true), []);

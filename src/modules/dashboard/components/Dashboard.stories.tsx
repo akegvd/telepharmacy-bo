@@ -5,14 +5,14 @@ import { withQueryClient } from '@/shared/mocks/storyQueryClient';
 
 import DATA_ISSUE from '../enums/dataIssue';
 import { makeTask } from '../mocks/taskFixtures';
-import { ITransformTask } from '../types/utils/transforms/transformTask';
+import { ITransformTaskItemResponse } from '../types/utils/transforms/transformTaskListResponse';
 import { buildTaskListSummary } from '../utils/transforms/transformTaskListResponse';
 
 import Dashboard from './Dashboard';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-const seededDashboard = (taskList: ITransformTask[]) =>
+const seededDashboard = (taskList: ITransformTaskItemResponse[]) =>
   withQueryClient((queryClient) => {
     queryClient.setQueryData(taskKeys.all, { taskList, summary: buildTaskListSummary(taskList) });
     // No mock API in Storybook — keep the seeded data as-is instead of

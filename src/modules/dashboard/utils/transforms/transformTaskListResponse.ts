@@ -1,74 +1,85 @@
-import dayjs from 'dayjs';
-
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
 import { ITaskItemResponse } from '@/shared/types/api/tasks';
 
+import { mapDisplayStatusColorByStatus } from '../../constants/mapDisplayStatusColorByStatus';
 import { taskStatusOptionList } from '../../constants/taskStatusOptionList';
 import DATA_ISSUE from '../../enums/dataIssue';
-import { ITransformTask } from '../../types/utils/transforms/transformTask';
-import { ITaskListSummary, ITransformTaskListResponse } from '../../types/utils/transforms/transformTaskListResponse';
-import { getServiceTypeLabel } from '../taskDisplay';
+import {
+  ITaskListSummary,
+  ITransformTaskItemResponse,
+  ITransformTaskListResponse,
+} from '../../types/utils/transforms/transformTaskListResponse';
+import { formatTaskDate, getNextStatus, getServiceTypeLabel, getTaskStatusLabel } from '../taskDisplay';
 
-const isNonEmptyString = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0;
+const isKnownServiceType = (serviceType: unknown): serviceType is SERVICE_TYPE => {
+  return Object.values(SERVICE_TYPE).includes(serviceType as SERVICE_TYPE);
+};
 
-export const transformTaskItemResponse = (resItem: ITaskItemResponse): ITransformTask | null => {
-  if (typeof resItem !== 'object' || resItem === null) {
-    return null;
+const isKnownStatus = (status: unknown): status is TASK_STATUS => {
+  return Object.values(TASK_STATUS).includes(status as TASK_STATUS);
+};
+
+const hasUsableId = (id: unknown): id is string | number => {
+  if (typeof id === 'number') {
+    return true;
   }
 
-  const raw = resItem as unknown as Record<string, unknown>;
-  const id = raw.id;
-  if (!isNonEmptyString(id) && typeof id !== 'number') {
+  return typeof id === 'string' && id.trim().length > 0;
+};
+
+export const transformTaskItemResponse = (resItem: ITaskItemResponse): ITransformTaskItemResponse | null => {
+  if (!hasUsableId(resItem.id)) {
     return null;
   }
 
   const issues: DATA_ISSUE[] = [];
 
-  const customerName = isNonEmptyString(raw.customerName)
-    ? raw.customerName.trim()
-    : (issues.push(DATA_ISSUE.MISSING_NAME), '');
+  if (!resItem.customerName) {
+    issues.push(DATA_ISSUE.MISSING_NAME);
+  }
 
-  const serviceType = isNonEmptyString(raw.serviceType) ? raw.serviceType.trim() : '';
-  if (!(Object.values(SERVICE_TYPE) as string[]).includes(serviceType)) {
+  if (!isKnownServiceType(resItem.serviceType)) {
     issues.push(DATA_ISSUE.UNKNOWN_SERVICE_TYPE);
   }
 
-  const status = isNonEmptyString(raw.status) ? raw.status.trim() : '';
-  if (!(Object.values(TASK_STATUS) as string[]).includes(status)) {
+  if (!isKnownStatus(resItem.status)) {
     issues.push(DATA_ISSUE.UNKNOWN_STATUS);
   }
 
-  const symptom = isNonEmptyString(raw.symptom) ? raw.symptom.trim() : (issues.push(DATA_ISSUE.MISSING_SYMPTOM), '');
+  if (!resItem.symptom) {
+    issues.push(DATA_ISSUE.MISSING_SYMPTOM);
+  }
 
-  const createdAtRaw = raw.createdAt;
-  const displayCreatedAt = isNonEmptyString(createdAtRaw) ? createdAtRaw.trim() : null;
-  if (displayCreatedAt === null || !dayjs(displayCreatedAt).isValid()) {
+  const displayCreatedAt = formatTaskDate(resItem.createdAt);
+
+  if (!displayCreatedAt) {
     issues.push(DATA_ISSUE.INVALID_DATE);
   }
 
+  const nextStatus = issues.length > 0 ? null : getNextStatus(resItem.status);
+
   return {
-    id: String(id),
-    customerName,
-    displayCustomerName: customerName,
-    serviceType,
-    displayServiceType: getServiceTypeLabel(serviceType),
-    status,
-    displayStatus: status,
-    displaySymptom: symptom,
+    id: String(resItem.id),
+    customerName: resItem.customerName,
+    displayCustomerName: resItem.customerName ?? '',
+    serviceType: resItem.serviceType,
+    displayServiceType: getServiceTypeLabel(resItem.serviceType),
+    status: resItem.status,
+    displayStatus: getTaskStatusLabel(resItem.status),
+    displayStatusColor: isKnownStatus(resItem.status) ? mapDisplayStatusColorByStatus[resItem.status] : null,
+    symptom: resItem.symptom,
+    displaySymptom: resItem.symptom ?? '',
+    createdAt: resItem.createdAt,
     displayCreatedAt,
+    nextStatus,
+    displayNextStatus: nextStatus ? getTaskStatusLabel(nextStatus) : '',
+    displayNextStatusColor: nextStatus ? mapDisplayStatusColorByStatus[nextStatus] : null,
     issues,
-    raw: {
-      customerName: raw.customerName,
-      serviceType: raw.serviceType,
-      status: raw.status,
-      symptom: raw.symptom,
-      createdAt: raw.createdAt,
-    },
   };
 };
 
-export const buildTaskListSummary = (taskList: ITransformTask[]): ITaskListSummary => {
+export const buildTaskListSummary = (taskList: ITransformTaskItemResponse[]): ITaskListSummary => {
   const statusCounts = Object.fromEntries(taskStatusOptionList.map((status) => [status, 0])) as Record<
     TASK_STATUS,
     number
@@ -76,9 +87,12 @@ export const buildTaskListSummary = (taskList: ITransformTask[]): ITaskListSumma
 
   let flaggedCount = 0;
   for (const task of taskList) {
-    if (task.status in statusCounts) {
-      statusCounts[task.status as TASK_STATUS] += 1;
+    const status = task.status;
+
+    if (status && status in statusCounts) {
+      statusCounts[status] += 1;
     }
+
     if (task.issues.length > 0) {
       flaggedCount += 1;
     }
@@ -88,7 +102,15 @@ export const buildTaskListSummary = (taskList: ITransformTask[]): ITaskListSumma
 };
 
 export const transformTaskListResponse = (res: ITaskItemResponse[]): ITransformTaskListResponse => {
-  const taskList = res.map(transformTaskItemResponse) as ITransformTask[];
+  const taskList = res.map((item) => {
+    const task = transformTaskItemResponse(item);
+
+    if (!task) {
+      throw new Error('Unable to transform task item response');
+    }
+
+    return task;
+  });
 
   return { taskList, summary: buildTaskListSummary(taskList) };
 };

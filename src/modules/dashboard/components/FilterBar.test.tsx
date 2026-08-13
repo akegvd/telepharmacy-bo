@@ -1,53 +1,86 @@
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-
-const replace = jest.fn();
-let searchParams = new URLSearchParams();
-
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({ replace }),
-  useSearchParams: () => searchParams,
-}));
 
 import { FilterBar } from './FilterBar';
 
 describe('FilterBar', () => {
-  beforeEach(() => {
-    replace.mockClear();
-    searchParams = new URLSearchParams();
-  });
-
-  it('pre-fills the search box from the current ?q param', () => {
-    searchParams = new URLSearchParams({ q: 'Somchai' });
-    render(<FilterBar />);
+  it('renders the search value passed in via props', () => {
+    render(
+      <FilterBar
+        search="Somchai"
+        service="all"
+        status="all"
+        onSearchChange={jest.fn()}
+        onServiceChange={jest.fn()}
+        onStatusChange={jest.fn()}
+      />
+    );
 
     expect(screen.getByLabelText('Search customer')).toHaveValue('Somchai');
   });
 
-  it('updates the URL immediately when the service filter changes', async () => {
+  it('calls onSearchChange as the user types, without debouncing itself', async () => {
     const user = userEvent.setup();
-    render(<FilterBar />);
+    const onSearchChange = jest.fn();
+    render(
+      <FilterBar
+        search=""
+        service="all"
+        status="all"
+        onSearchChange={onSearchChange}
+        onServiceChange={jest.fn()}
+        onStatusChange={jest.fn()}
+      />
+    );
+
+    await user.type(screen.getByLabelText('Search customer'), 'abc');
+
+    // The input stays controlled by the `search` prop (never updated here), so
+    // each keystroke reports just the newly typed character, not an accumulated value.
+    expect(onSearchChange).toHaveBeenCalledTimes(3);
+    expect(onSearchChange).toHaveBeenNthCalledWith(1, 'a');
+    expect(onSearchChange).toHaveBeenNthCalledWith(2, 'b');
+    expect(onSearchChange).toHaveBeenNthCalledWith(3, 'c');
+  });
+
+  it('calls onServiceChange when the service filter changes', async () => {
+    const user = userEvent.setup();
+    const onServiceChange = jest.fn();
+    render(
+      <FilterBar
+        search=""
+        service="all"
+        status="all"
+        onSearchChange={jest.fn()}
+        onServiceChange={onServiceChange}
+        onStatusChange={jest.fn()}
+      />
+    );
 
     await user.click(screen.getByLabelText('Service'));
     await user.click(await screen.findByRole('option', { name: 'video call' }));
 
-    expect(replace).toHaveBeenCalledWith('/?service=video_call', { scroll: false });
+    expect(onServiceChange).toHaveBeenCalledWith('video_call');
   });
 
-  it('debounces search input before updating the URL', async () => {
-    jest.useFakeTimers({ advanceTimers: true });
-    const user = userEvent.setup({ delay: null });
-    render(<FilterBar />);
-    replace.mockClear(); // the sync-on-mount effect already fired once
+  it('calls onStatusChange when the status filter changes', async () => {
+    const user = userEvent.setup();
+    const onStatusChange = jest.fn();
+    render(
+      <FilterBar
+        search=""
+        service="all"
+        status="all"
+        onSearchChange={jest.fn()}
+        onServiceChange={jest.fn()}
+        onStatusChange={onStatusChange}
+      />
+    );
 
-    await user.type(screen.getByLabelText('Search customer'), 'abc');
-    expect(replace).not.toHaveBeenCalled();
+    await user.click(screen.getByLabelText('Status'));
+    const option = (await screen.findAllByRole('option'))[1];
+    await user.click(option);
 
-    act(() => {
-      jest.advanceTimersByTime(300);
-    });
-    expect(replace).toHaveBeenCalledWith('/?q=abc', { scroll: false });
-
-    jest.useRealTimers();
+    expect(onStatusChange).toHaveBeenCalled();
   });
 });

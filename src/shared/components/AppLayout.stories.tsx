@@ -21,7 +21,7 @@ export const Default: Story = {
   args: {
     children: (
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
+        <Typography variant="h4" component="h1">
           Page content
         </Typography>
       </Container>

@@ -10,18 +10,19 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  styled,
   Toolbar,
   Tooltip,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import NextLink from './NextLink';
 
 const DRAWER_WIDTH = 240;
-const COLLAPSED_DRAWER_WIDTH = 72;
+const COLLAPSED_DRAWER_WIDTH = 64;
 
 interface INavItem {
   label: string;
@@ -29,81 +30,113 @@ interface INavItem {
   icon: React.ReactNode;
 }
 
+interface IDrawerWidthProps {
+  drawerWidth: number;
+}
+
+interface ICollapsedProps {
+  collapsed: boolean;
+}
+
 const NAV_ITEMS: INavItem[] = [{ label: 'Dashboard', href: '/', icon: <DashboardIcon /> }];
+
+const StyledDrawer = styled(Drawer, {
+  shouldForwardProp: (prop) => prop !== 'drawerWidth',
+})<IDrawerWidthProps>(({ theme, drawerWidth }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+  transition: theme.transitions.create('width', { duration: theme.transitions.duration.shortest }),
+  '& .MuiDrawer-paper': {
+    width: drawerWidth,
+    boxSizing: 'border-box',
+    overflowX: 'hidden',
+    transition: theme.transitions.create('width', { duration: theme.transitions.duration.shortest }),
+  },
+}));
+
+const NavItemButton = styled(ListItemButton)({
+  justifyContent: 'flex-start',
+  '&[data-collapsed="true"]': {
+    justifyContent: 'center',
+  },
+}) as typeof ListItemButton;
+
+const NavItemIcon = styled(ListItemIcon, {
+  shouldForwardProp: (prop) => prop !== 'collapsed',
+})<ICollapsedProps>(({ theme, collapsed }) => ({
+  minWidth: 0,
+  marginRight: collapsed ? 0 : theme.spacing(2),
+  justifyContent: 'center',
+}));
+
+const CollapseToggle = styled(IconButton, {
+  shouldForwardProp: (prop) => prop !== 'drawerWidth',
+})<IDrawerWidthProps>(({ theme, drawerWidth }) => ({
+  position: 'fixed',
+  top: 76,
+  left: drawerWidth - 15,
+  width: 30,
+  height: 30,
+  backgroundColor: theme.palette.background.paper,
+  border: '1px solid',
+  borderColor: theme.palette.divider,
+  boxShadow: theme.shadows[1],
+  zIndex: theme.zIndex.drawer + 2,
+  transition: theme.transitions.create('left', { duration: theme.transitions.duration.shortest }),
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  },
+}));
 
 export const Sidebar = () => {
   const pathname = usePathname();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [collapsed, setCollapsed] = useState(false);
-  const initialized = useRef(false);
+  const userToggled = useRef(false);
+  const drawerWidth = collapsed ? COLLAPSED_DRAWER_WIDTH : DRAWER_WIDTH;
+
+  const handleToggleCollapsed = useCallback(() => {
+    userToggled.current = true;
+    setCollapsed((prev) => !prev);
+  }, []);
 
   useEffect(() => {
-    if (!initialized.current) {
-      initialized.current = true;
+    if (!userToggled.current) {
       setCollapsed(isMobile);
     }
   }, [isMobile]);
 
-  const drawerWidth = collapsed ? COLLAPSED_DRAWER_WIDTH : DRAWER_WIDTH;
-
   return (
     <>
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          whiteSpace: 'nowrap',
-          transition: (t) => t.transitions.create('width', { duration: t.transitions.duration.shortest }),
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-            overflowX: 'hidden',
-            transition: (t) => t.transitions.create('width', { duration: t.transitions.duration.shortest }),
-          },
-        }}
-      >
+      <StyledDrawer variant="permanent" drawerWidth={drawerWidth}>
         <Toolbar />
         <List component="nav" aria-label="Main navigation" sx={{ pt: 1 }}>
           {NAV_ITEMS.map((item) => (
             <Tooltip key={item.href} title={collapsed ? item.label : ''} placement="right">
-              <ListItemButton
+              <NavItemButton
                 component={NextLink}
                 href={item.href}
                 selected={pathname === item.href}
-                sx={{ justifyContent: collapsed ? 'center' : 'flex-start', px: 2.5 }}
+                data-collapsed={collapsed}
+                sx={{ px: collapsed ? 1.5 : 2.5 }}
               >
-                <ListItemIcon sx={{ minWidth: 0, mr: collapsed ? 0 : 2, justifyContent: 'center' }}>
-                  {item.icon}
-                </ListItemIcon>
+                <NavItemIcon collapsed={collapsed}>{item.icon}</NavItemIcon>
                 {!collapsed && <ListItemText primary={item.label} />}
-              </ListItemButton>
+              </NavItemButton>
             </Tooltip>
           ))}
         </List>
-      </Drawer>
+      </StyledDrawer>
 
-      <IconButton
-        onClick={() => setCollapsed((prev) => !prev)}
+      <CollapseToggle
+        drawerWidth={drawerWidth}
+        onClick={handleToggleCollapsed}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        sx={{
-          position: 'fixed',
-          top: 76,
-          left: drawerWidth - 15,
-          width: 30,
-          height: 30,
-          bgcolor: 'background.paper',
-          border: '1px solid',
-          borderColor: 'divider',
-          boxShadow: 1,
-          zIndex: (t) => t.zIndex.drawer + 2,
-          transition: (t) => t.transitions.create('left', { duration: t.transitions.duration.shortest }),
-          '&:hover': { bgcolor: 'action.hover' },
-        }}
       >
         {collapsed ? <ChevronRightIcon fontSize="small" /> : <ChevronLeftIcon fontSize="small" />}
-      </IconButton>
+      </CollapseToggle>
     </>
   );
 };

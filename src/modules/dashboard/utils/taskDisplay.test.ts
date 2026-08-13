@@ -1,15 +1,15 @@
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
 
-import { formatTaskDate, getNextStatus, getServiceTypeLabel } from './taskDisplay';
+import { formatTaskDate, getNextStatus, getServiceTypeLabel, getTaskStatusLabel } from './taskDisplay';
 
 describe('formatTaskDate', () => {
   it('formats a parseable date', () => {
     expect(formatTaskDate('2026-08-09T09:00:00.000Z')).toMatch(/^Aug 9, \d{2}:\d{2} (AM|PM)$/);
   });
 
-  it('returns the raw value when it cannot be parsed', () => {
-    expect(formatTaskDate('not-a-date')).toBe('not-a-date');
+  it('returns an empty string when it cannot be parsed', () => {
+    expect(formatTaskDate('not-a-date')).toBe('');
   });
 
   it('returns an empty string for an empty value', () => {
@@ -29,6 +29,16 @@ describe('getNextStatus', () => {
   it('returns null for a terminal or unrecognized status', () => {
     expect(getNextStatus(TASK_STATUS.COMPLETED)).toBeNull();
     expect(getNextStatus('archived')).toBeNull();
+  });
+});
+
+describe('getTaskStatusLabel', () => {
+  it('labels a known status', () => {
+    expect(getTaskStatusLabel(TASK_STATUS.NEW)).toBe('New');
+  });
+
+  it('falls back to the raw value for an unknown status', () => {
+    expect(getTaskStatusLabel('pending_review')).toBe('pending_review');
   });
 });
 

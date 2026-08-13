@@ -1,14 +1,21 @@
 'use client';
 
 import AppQueryClientProvider from '@/shared/components/AppQueryClientProvider';
+import { SnackbarProvider } from '@/shared/components/SnackbarProvider';
 import { LoadingProvider } from '@/shared/contexts/LoadingContext';
 import { AppThemeProvider } from '@/theme';
 
-const Providers = ({ children }: { children: React.ReactNode }) => {
+interface IProvidersProps {
+  children: React.ReactNode;
+}
+
+const Providers = ({ children }: IProvidersProps) => {
   return (
     <AppQueryClientProvider>
       <AppThemeProvider>
-        <LoadingProvider>{children}</LoadingProvider>
+        <LoadingProvider>
+          <SnackbarProvider>{children}</SnackbarProvider>
+        </LoadingProvider>
       </AppThemeProvider>
     </AppQueryClientProvider>
   );

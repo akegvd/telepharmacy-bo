@@ -2,21 +2,20 @@
 
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import { Button } from '@mui/material';
-import { useEffect } from 'react';
 
 import NextLink from './NextLink';
 import { StatusPage } from './StatusPage';
 
+export interface IAppError extends Error {
+  digest?: string;
+}
+
 interface IErrorPageProps {
-  error: Error & { digest?: string };
+  error: IAppError;
   reset: () => void;
 }
 
 export const ErrorPage = ({ error, reset }: IErrorPageProps) => {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
   return (
     <StatusPage
       tone="error"

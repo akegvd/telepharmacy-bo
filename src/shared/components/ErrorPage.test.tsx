@@ -4,16 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { ErrorPage } from './ErrorPage';
 
 describe('ErrorPage', () => {
-  const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
-
-  afterEach(() => {
-    consoleError.mockClear();
-  });
-
-  afterAll(() => {
-    consoleError.mockRestore();
-  });
-
   it('renders the error heading and a link back to the dashboard', () => {
     render(<ErrorPage error={new Error('boom')} reset={jest.fn()} />);
 
@@ -41,13 +31,5 @@ describe('ErrorPage', () => {
     await user.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(reset).toHaveBeenCalledTimes(1);
-  });
-
-  it('logs the error', () => {
-    const error = new Error('boom');
-
-    render(<ErrorPage error={error} reset={jest.fn()} />);
-
-    expect(consoleError).toHaveBeenCalledWith(error);
   });
 });

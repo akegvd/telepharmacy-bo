@@ -1,6 +1,5 @@
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
-import { withQueryClient } from '@/shared/mocks/storyQueryClient';
 
 import { makeTask } from '../mocks/taskFixtures';
 
@@ -17,7 +16,6 @@ const meta: Meta<typeof TaskList> = {
   args: {
     onSelectTask: () => {},
   },
-  decorators: [withQueryClient(() => {})],
 };
 
 export default meta;
@@ -39,7 +37,7 @@ export const FewTasks: Story = {
 };
 
 export const ManyTasks: Story = {
-  name: 'Many tasks (virtualized)',
+  name: 'Many tasks (non-virtualized)',
   args: {
     taskList: Array.from({ length: 500 }, (_, index) =>
       makeTask({
@@ -53,4 +51,14 @@ export const ManyTasks: Story = {
 
 export const Empty: Story = {
   args: { taskList: [] },
+};
+
+export const Refreshing: Story = {
+  args: {
+    taskList: [
+      makeTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+      makeTask({ id: '2', customerName: 'Nutcha R.', status: TASK_STATUS.IN_PROGRESS }),
+    ],
+    isRefreshing: true,
+  },
 };

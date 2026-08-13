@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { Modal } from './Modal';
@@ -6,7 +6,7 @@ import { Modal } from './Modal';
 describe('Modal', () => {
   it('renders its children', () => {
     render(
-      <Modal onClose={jest.fn()}>
+      <Modal open onClose={jest.fn()}>
         <p>Task detail</p>
       </Modal>
     );
@@ -14,11 +14,21 @@ describe('Modal', () => {
     expect(screen.getByText('Task detail')).toBeInTheDocument();
   });
 
+  it('does not render its content when closed', () => {
+    render(
+      <Modal open={false} onClose={jest.fn()}>
+        <p>Task detail</p>
+      </Modal>
+    );
+
+    expect(screen.queryByText('Task detail')).not.toBeInTheDocument();
+  });
+
   it('calls onClose when the close button is clicked', async () => {
     const onClose = jest.fn();
     const user = userEvent.setup();
     render(
-      <Modal onClose={onClose}>
+      <Modal open onClose={onClose}>
         <p>Task detail</p>
       </Modal>
     );
@@ -32,7 +42,7 @@ describe('Modal', () => {
     const onClose = jest.fn();
     const user = userEvent.setup();
     render(
-      <Modal onClose={onClose}>
+      <Modal open onClose={onClose}>
         <p>Task detail</p>
       </Modal>
     );
@@ -40,5 +50,22 @@ describe('Modal', () => {
     await user.keyboard('{Escape}');
 
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onExited after the close transition finishes', async () => {
+    const onExited = jest.fn();
+    const { rerender } = render(
+      <Modal open onClose={jest.fn()} onExited={onExited}>
+        <p>Task detail</p>
+      </Modal>
+    );
+
+    rerender(
+      <Modal open={false} onClose={jest.fn()} onExited={onExited}>
+        <p>Task detail</p>
+      </Modal>
+    );
+
+    await waitFor(() => expect(onExited).toHaveBeenCalledTimes(1));
   });
 });

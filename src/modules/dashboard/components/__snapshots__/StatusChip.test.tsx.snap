@@ -1,6 +1,20 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`StatusChip matches snapshot for each status: completed 1`] = `
+exports[`StatusChip matches snapshot for each known color: info 1`] = `
+<div>
+  <div
+    class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorInfo css-1sz0aa9-MuiChip-root"
+  >
+    <span
+      class="MuiChip-label css-eccknh-MuiChip-label"
+    >
+      New
+    </span>
+  </div>
+</div>
+`;
+
+exports[`StatusChip matches snapshot for each known color: success 1`] = `
 <div>
   <div
     class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorSuccess css-106f2r9-MuiChip-root"
@@ -14,7 +28,7 @@ exports[`StatusChip matches snapshot for each status: completed 1`] = `
 </div>
 `;
 
-exports[`StatusChip matches snapshot for each status: in_progress 1`] = `
+exports[`StatusChip matches snapshot for each known color: warning 1`] = `
 <div>
   <div
     class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorWarning css-cs74ct-MuiChip-root"
@@ -23,20 +37,6 @@ exports[`StatusChip matches snapshot for each status: in_progress 1`] = `
       class="MuiChip-label css-eccknh-MuiChip-label"
     >
       In progress
-    </span>
-  </div>
-</div>
-`;
-
-exports[`StatusChip matches snapshot for each status: new 1`] = `
-<div>
-  <div
-    class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorInfo css-1sz0aa9-MuiChip-root"
-  >
-    <span
-      class="MuiChip-label css-eccknh-MuiChip-label"
-    >
-      New
     </span>
   </div>
 </div>

@@ -1,17 +1,23 @@
 'use client';
 
-import { Container, Stack } from '@mui/material';
+import { Container, Stack, styled } from '@mui/material';
 import { Suspense } from 'react';
 
 import Dashboard from '@/modules/dashboard/components/Dashboard';
 import { LoadingSpinner } from '@/shared/components/LoadingSpinner';
 
+const Fallback = styled(Stack)({
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: 320,
+});
+
 const DashboardFallback = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Stack sx={{ alignItems: 'center', justifyContent: 'center', minHeight: 320 }}>
+      <Fallback>
         <LoadingSpinner size={40} />
-      </Stack>
+      </Fallback>
     </Container>
   );
 };

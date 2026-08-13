@@ -1,49 +1,49 @@
 'use client';
 
-import { MenuItem, Stack, TextField } from '@mui/material';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { MenuItem, Stack, styled, TextField } from '@mui/material';
+import { ChangeEvent, useCallback } from 'react';
 
-import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
-
-import { mapDisplayStatusLabelByStatus } from '../constants/mapDisplayStatusLabelByStatus';
+import { mapDisplayTaskStatusLabelByStatus } from '../constants/mapDisplayTaskStatusLabelByStatus';
 import { serviceTypeOptionList } from '../constants/serviceTypeOptionList';
 import { taskStatusOptionList } from '../constants/taskStatusOptionList';
 
-const ALL = 'all';
+export const ALL = 'all';
 
-export const FilterBar = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+const FilterSelect = styled(TextField)({
+  minWidth: 160,
+});
 
-  const [search, setSearch] = useState(searchParams.get('q') ?? '');
-  const debouncedSearch = useDebouncedValue(search, 300);
+export interface IFilterBarProps {
+  search: string;
+  service: string;
+  status: string;
+  onSearchChange: (value: string) => void;
+  onServiceChange: (value: string) => void;
+  onStatusChange: (value: string) => void;
+}
 
-  const service = searchParams.get('service') ?? ALL;
-  const status = searchParams.get('status') ?? ALL;
+export const FilterBar = ({
+  search,
+  service,
+  status,
+  onSearchChange,
+  onServiceChange,
+  onStatusChange,
+}: IFilterBarProps) => {
+  const handleSearchInputChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => onSearchChange(event.target.value),
+    [onSearchChange]
+  );
 
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    if (debouncedSearch) {
-      params.set('q', debouncedSearch);
-    } else {
-      params.delete('q');
-    }
-    router.replace(`/?${params.toString()}`, { scroll: false });
-    // Only re-run when the debounced search term changes — service/status
-    // filters update the URL directly in their own onChange handlers.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch]);
+  const handleServiceInputChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => onServiceChange(event.target.value),
+    [onServiceChange]
+  );
 
-  const updateParam = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (value === ALL) {
-      params.delete(key);
-    } else {
-      params.set(key, value);
-    }
-    router.replace(`/?${params.toString()}`, { scroll: false });
-  };
+  const handleStatusInputChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => onStatusChange(event.target.value),
+    [onStatusChange]
+  );
 
   return (
     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -51,40 +51,26 @@ export const FilterBar = () => {
         label="Search customer"
         placeholder="e.g. Somchai"
         value={search}
-        onChange={(event) => setSearch(event.target.value)}
+        onChange={handleSearchInputChange}
         size="small"
         fullWidth
       />
-      <TextField
-        select
-        label="Service"
-        value={service}
-        onChange={(event) => updateParam('service', event.target.value)}
-        size="small"
-        sx={{ minWidth: 160 }}
-      >
+      <FilterSelect select label="Service" value={service} onChange={handleServiceInputChange} size="small">
         <MenuItem value={ALL}>All services</MenuItem>
         {serviceTypeOptionList.map((type) => (
           <MenuItem key={type} value={type}>
             {type.replace('_', ' ')}
           </MenuItem>
         ))}
-      </TextField>
-      <TextField
-        select
-        label="Status"
-        value={status}
-        onChange={(event) => updateParam('status', event.target.value)}
-        size="small"
-        sx={{ minWidth: 160 }}
-      >
+      </FilterSelect>
+      <FilterSelect select label="Status" value={status} onChange={handleStatusInputChange} size="small">
         <MenuItem value={ALL}>All statuses</MenuItem>
         {taskStatusOptionList.map((value) => (
           <MenuItem key={value} value={value}>
-            {mapDisplayStatusLabelByStatus[value]}
+            {mapDisplayTaskStatusLabelByStatus[value]}
           </MenuItem>
         ))}
-      </TextField>
+      </FilterSelect>
     </Stack>
   );
 };

@@ -1,3 +1,5 @@
+import { Box } from '@mui/material';
+
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
 
 import DATA_ISSUE from '../enums/dataIssue';
@@ -41,4 +43,15 @@ export const WithFlaggedData: Story = {
       makeTask({ id: '3', status: TASK_STATUS.COMPLETED, issues: [DATA_ISSUE.INVALID_DATE] }),
     ]),
   },
+};
+
+export const Mobile: Story = {
+  args: Mixed.args,
+  decorators: [
+    (Story) => (
+      <Box sx={{ maxWidth: 360 }}>
+        <Story />
+      </Box>
+    ),
+  ],
 };

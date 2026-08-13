@@ -41,9 +41,10 @@ describe('SummaryBar', () => {
     render(<SummaryBar summary={buildTaskListSummary([makeTask({ issues: [] })])} />);
 
     expect(screen.queryByText('Flagged')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('WarningAmberIcon')).not.toBeInTheDocument();
   });
 
-  it('shows a compact Flagged count for tasks with data issues', () => {
+  it('shows a compact Flagged remark under the summary box for tasks with data issues', () => {
     render(
       <SummaryBar
         summary={buildTaskListSummary([
@@ -54,7 +55,7 @@ describe('SummaryBar', () => {
       />
     );
 
-    expect(screen.getByText('2')).toBeInTheDocument();
-    expect(screen.getByText('Flagged')).toBeInTheDocument();
+    expect(screen.getByText('2 Flagged')).toBeInTheDocument();
+    expect(screen.getByTestId('WarningAmberIcon')).toBeInTheDocument();
   });
 });

@@ -5,8 +5,12 @@ import { LoadingProvider } from '../contexts/LoadingContext';
 
 import { useLoading } from './useLoading';
 
+interface IWrapperProps {
+  children: ReactNode;
+}
+
 describe('useLoading', () => {
-  const wrapper = ({ children }: { children: ReactNode }) => createElement(LoadingProvider, null, children);
+  const wrapper = ({ children }: IWrapperProps) => createElement(LoadingProvider, null, children);
 
   it('throws when used outside of a LoadingProvider', () => {
     expect(() => renderHook(() => useLoading())).toThrow('useLoading must be used within a LoadingProvider');

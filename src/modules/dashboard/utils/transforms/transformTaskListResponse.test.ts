@@ -2,8 +2,11 @@ import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
 import { ITaskItemResponse } from '@/shared/types/api/tasks';
 
+import { mapDisplayStatusColorByStatus } from '../../constants/mapDisplayStatusColorByStatus';
 import DATA_ISSUE from '../../enums/dataIssue';
 import { makeTask } from '../../mocks/taskFixtures';
+import { ITransformTaskItemResponse } from '../../types/utils/transforms/transformTaskListResponse';
+import { formatTaskDate } from '../taskDisplay';
 
 import {
   buildTaskListSummary,
@@ -12,7 +15,7 @@ import {
 } from './transformTaskListResponse';
 
 describe('transformTaskItemResponse', () => {
-  it('passes clean data through unchanged with no issues', () => {
+  it('passes clean data through with display fields and no issues', () => {
     const result = transformTaskItemResponse({
       id: '1',
       customerName: 'Somchai P.',
@@ -29,9 +32,14 @@ describe('transformTaskItemResponse', () => {
       serviceType: 'video_call',
       displayServiceType: 'Video call',
       status: 'new',
-      displayStatus: 'new',
+      displayStatus: 'New',
+      displayStatusColor: 'info',
+      symptom: 'Persistent dry cough',
       displaySymptom: 'Persistent dry cough',
-      displayCreatedAt: '2026-08-09T09:12:00.000Z',
+      displayCreatedAt: formatTaskDate('2026-08-09T09:12:00.000Z'),
+      nextStatus: TASK_STATUS.IN_PROGRESS,
+      displayNextStatus: 'In progress',
+      displayNextStatusColor: mapDisplayStatusColorByStatus[TASK_STATUS.IN_PROGRESS],
       issues: [],
     });
   });
@@ -46,13 +54,13 @@ describe('transformTaskItemResponse', () => {
       createdAt: '2026-08-09T11:18:00.000Z',
     });
 
-    expect(result?.customerName).toBe('');
+    expect(result?.customerName).toBeNull();
     expect(result?.displayCustomerName).toBe('');
     expect(result?.issues).toContain('missing_name');
+    expect(result?.nextStatus).toBeNull();
   });
 
   it('flags an unrecognized serviceType but keeps showing the raw value from the source data', () => {
-    // Real APIs don't actually honor our types — simulate a value outside the enum.
     const result = transformTaskItemResponse({
       id: '8',
       customerName: 'Niran D.',
@@ -65,10 +73,10 @@ describe('transformTaskItemResponse', () => {
     expect(result?.serviceType).toBe('phone_call');
     expect(result?.displayServiceType).toBe('phone_call');
     expect(result?.issues).toContain('unknown_service_type');
+    expect(result?.nextStatus).toBeNull();
   });
 
   it('flags an unrecognized status but keeps showing the raw value, without coercing it into the workflow', () => {
-    // Real APIs don't actually honor our types — simulate a value outside the enum.
     const result = transformTaskItemResponse({
       id: '9',
       customerName: 'Suda R.',
@@ -80,7 +88,9 @@ describe('transformTaskItemResponse', () => {
 
     expect(result?.status).toBe('pending_review');
     expect(result?.displayStatus).toBe('pending_review');
+    expect(result?.displayStatusColor).toBeNull();
     expect(result?.issues).toContain('unknown_status');
+    expect(result?.nextStatus).toBeNull();
   });
 
   it('flags a blank symptom but keeps it blank instead of substituting placeholder text', () => {
@@ -95,9 +105,10 @@ describe('transformTaskItemResponse', () => {
 
     expect(result?.displaySymptom).toBe('');
     expect(result?.issues).toContain('missing_symptom');
+    expect(result?.nextStatus).toBeNull();
   });
 
-  it("keeps an unparseable createdAt as its raw string instead of 'Invalid Date'", () => {
+  it('turns an unparseable createdAt into a blank display value, and flags it', () => {
     const result = transformTaskItemResponse({
       id: '11',
       customerName: 'Kanya H.',
@@ -107,11 +118,12 @@ describe('transformTaskItemResponse', () => {
       createdAt: 'not-a-real-date',
     });
 
-    expect(result?.displayCreatedAt).toBe('not-a-real-date');
+    expect(result?.displayCreatedAt).toBe('');
     expect(result?.issues).toContain('invalid_date');
+    expect(result?.nextStatus).toBeNull();
   });
 
-  it('turns a missing createdAt field into null, and flags it', () => {
+  it('turns a missing createdAt field into a blank display value, and flags it', () => {
     const result = transformTaskItemResponse({
       id: '13',
       customerName: 'Areeya B.',
@@ -120,7 +132,7 @@ describe('transformTaskItemResponse', () => {
       status: TASK_STATUS.NEW,
     } as unknown as ITaskItemResponse);
 
-    expect(result?.displayCreatedAt).toBeNull();
+    expect(result?.displayCreatedAt).toBe('');
     expect(result?.issues).toContain('invalid_date');
   });
 
@@ -183,7 +195,6 @@ describe('transformTaskListResponse', () => {
   });
 
   it("throws instead of silently dropping entries that can't be transformed into a task", () => {
-    // The API is trusted to return valid records — malformed input surfaces as a query error.
     expect(() => transformTaskListResponse([null, 'not a task', 42] as unknown as ITaskItemResponse[])).toThrow();
   });
 });
@@ -205,7 +216,11 @@ describe('buildTaskListSummary', () => {
 
   it('counts flagged tasks and ignores unrecognized statuses in statusCounts', () => {
     const summary = buildTaskListSummary([
-      makeTask({ id: '1', status: 'pending_review', issues: [DATA_ISSUE.UNKNOWN_STATUS] }),
+      makeTask({
+        id: '1',
+        status: 'pending_review' as ITransformTaskItemResponse['status'],
+        issues: [DATA_ISSUE.UNKNOWN_STATUS],
+      }),
       makeTask({ id: '2', status: TASK_STATUS.NEW, issues: [DATA_ISSUE.MISSING_NAME] }),
     ]);
 

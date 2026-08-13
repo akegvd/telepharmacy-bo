@@ -1,4 +1,4 @@
-import { ConfirmDialog } from './ConfirmDialog';
+import ConfirmDialog from './ConfirmDialog';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
@@ -34,5 +34,15 @@ export const Loading: Story = {
 export const CustomCancelLabel: Story = {
   args: {
     cancelLabel: 'Not now',
+  },
+};
+
+export const CustomIcon: Story = {
+  args: {
+    icon: (
+      <span role="img" aria-label="custom icon">
+        ✓
+      </span>
+    ),
   },
 };

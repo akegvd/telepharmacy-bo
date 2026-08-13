@@ -12,7 +12,11 @@ const ICONS: Record<string, typeof VideocamOutlinedIcon> = {
   [SERVICE_TYPE.CHAT]: ChatOutlinedIcon,
 };
 
-export const ServiceTypeIcon = ({ serviceType, ...props }: { serviceType: string } & SvgIconProps) => {
+interface IServiceTypeIconProps extends SvgIconProps {
+  serviceType: string;
+}
+
+export const ServiceTypeIcon = ({ serviceType, ...props }: IServiceTypeIconProps) => {
   const Icon = ICONS[serviceType] ?? HelpOutlineOutlinedIcon;
   return <Icon fontSize="small" {...props} />;
 };

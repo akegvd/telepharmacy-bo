@@ -1,4 +1,4 @@
-import { Alert, Stack, Typography } from '@mui/material';
+import { Alert, Stack, styled, Typography } from '@mui/material';
 import { ReactNode } from 'react';
 
 import { LoadingSpinner } from './LoadingSpinner';
@@ -15,6 +15,27 @@ interface ISearchResultWrapperProps {
   children: ReactNode;
 }
 
+interface ILoadingStateProps {
+  minHeight: number | string;
+}
+
+const LoadingState = styled(Stack, {
+  shouldForwardProp: (prop) => prop !== 'minHeight',
+})<ILoadingStateProps>(({ minHeight }) => ({
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight,
+}));
+
+const RetryButton = styled('button')({
+  border: 'none',
+  background: 'none',
+  cursor: 'pointer',
+  color: 'inherit',
+  textDecoration: 'underline',
+  font: 'inherit',
+});
+
 export const SearchResultWrapper = ({
   isLoading,
   isError = false,
@@ -28,12 +49,12 @@ export const SearchResultWrapper = ({
 }: ISearchResultWrapperProps) => {
   if (isLoading) {
     return (
-      <Stack spacing={1.5} sx={{ alignItems: 'center', justifyContent: 'center', minHeight, py: 4 }}>
+      <LoadingState spacing={1.5} minHeight={minHeight} sx={{ py: 4 }}>
         <LoadingSpinner size={32} />
         <Typography variant="body2" color="text.secondary">
           {loadingLabel}
         </Typography>
-      </Stack>
+      </LoadingState>
     );
   }
 
@@ -43,20 +64,9 @@ export const SearchResultWrapper = ({
         severity="error"
         action={
           onRetry ? (
-            <Typography
-              component="button"
-              onClick={onRetry}
-              sx={{
-                border: 'none',
-                background: 'none',
-                cursor: 'pointer',
-                color: 'inherit',
-                textDecoration: 'underline',
-                font: 'inherit',
-              }}
-            >
+            <RetryButton type="button" onClick={onRetry}>
               Retry
-            </Typography>
+            </RetryButton>
           ) : undefined
         }
       >
