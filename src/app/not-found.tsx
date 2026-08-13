@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+import { NotFoundPage } from '@/shared/components/NotFoundPage';
 
-import { NotFoundPage } from "@/shared/components/NotFoundPage";
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Page not found",
+  title: 'Page not found',
 };
 
 export default function NotFound() {

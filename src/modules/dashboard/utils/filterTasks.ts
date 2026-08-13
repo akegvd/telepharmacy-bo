@@ -1,4 +1,4 @@
-import { ITransformTask } from "../types/utils/transforms/transformTask";
+import { ITransformTask } from '../types/utils/transforms/transformTask';
 
 export type TTaskFilters = {
   q: string;
@@ -10,8 +10,8 @@ export function filterTasks(tasks: ITransformTask[], { q, service, status }: TTa
   const query = q.trim().toLowerCase();
   return tasks.filter((task) => {
     if (query && !task.customerName.toLowerCase().includes(query)) return false;
-    if (service !== "all" && task.serviceType !== service) return false;
-    if (status !== "all" && task.status !== status) return false;
+    if (service !== 'all' && task.serviceType !== service) return false;
+    if (status !== 'all' && task.status !== status) return false;
     return true;
   });
 }

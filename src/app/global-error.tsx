@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { ErrorPage } from "@/shared/components/ErrorPage";
-import { AppThemeProvider } from "@/theme";
+import { ErrorPage } from '@/shared/components/ErrorPage';
+import { AppThemeProvider } from '@/theme';
 
-import "./globals.css";
+import './globals.css';
 
 interface IGlobalErrorProps {
   error: Error & { digest?: string };

@@ -1,5 +1,5 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState, type ReactElement } from "react";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState, type ReactElement } from 'react';
 
 /**
  * Seeds a fresh TanStack Query cache for a story instead of hitting the real

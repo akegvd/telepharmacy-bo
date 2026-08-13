@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import Link from "next/link";
+import Link from 'next/link';
 
 // Next.js 16 cannot serialize `next/link` when it is passed to a MUI `component`
 // prop from a Server Component. Re-exporting it from a client module turns it

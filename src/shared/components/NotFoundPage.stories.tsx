@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { NotFoundPage } from './NotFoundPage';
 
-import { NotFoundPage } from "./NotFoundPage";
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof NotFoundPage> = {
   component: NotFoundPage,
-  title: "Shared/NotFoundPage",
+  title: 'Shared/NotFoundPage',
   parameters: {
-    layout: "fullscreen",
+    layout: 'fullscreen',
   },
 };
 

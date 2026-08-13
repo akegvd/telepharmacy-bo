@@ -1,4 +1,4 @@
-import { TDataIssue, TNormalizedServiceType, TStatus } from "../../task";
+import { TDataIssue, TNormalizedServiceType, TStatus } from '../../task';
 
 /**
  * Output of `transformTask`. Fields come in two flavors:

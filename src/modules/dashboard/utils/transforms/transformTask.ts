@@ -1,10 +1,9 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
-import { TDataIssue, SERVICE_TYPES, STATUSES, UNKNOWN_SERVICE_TYPE } from "../../types/task";
-import { ITransformTask, ITransformTasksResponse } from "../../types/utils/transforms/transformTask";
+import { TDataIssue, SERVICE_TYPES, STATUSES, UNKNOWN_SERVICE_TYPE } from '../../types/task';
+import { ITransformTask, ITransformTasksResponse } from '../../types/utils/transforms/transformTask';
 
-const isNonEmptyString = (value: unknown): value is string =>
-  typeof value === "string" && value.trim().length > 0;
+const isNonEmptyString = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0;
 
 /**
  * json-server hands back whatever is in db.json verbatim, including the
@@ -15,36 +14,34 @@ const isNonEmptyString = (value: unknown): value is string =>
  * so the UI can flag it instead of hiding it.
  */
 export function transformTask(input: unknown): ITransformTask | null {
-  if (typeof input !== "object" || input === null) return null;
+  if (typeof input !== 'object' || input === null) return null;
 
   const raw = input as Record<string, unknown>;
   const id = raw.id;
-  if (!isNonEmptyString(id) && typeof id !== "number") return null;
+  if (!isNonEmptyString(id) && typeof id !== 'number') return null;
 
   const issues: TDataIssue[] = [];
 
   const customerName = isNonEmptyString(raw.customerName)
     ? raw.customerName.trim()
-    : (issues.push("missing_name"), "Unknown customer");
+    : (issues.push('missing_name'), 'Unknown customer');
 
-  const serviceType = (SERVICE_TYPES as readonly string[]).includes(
-    raw.serviceType as string,
-  )
-    ? (raw.serviceType as ITransformTask["serviceType"])
-    : (issues.push("unknown_service_type"), UNKNOWN_SERVICE_TYPE);
+  const serviceType = (SERVICE_TYPES as readonly string[]).includes(raw.serviceType as string)
+    ? (raw.serviceType as ITransformTask['serviceType'])
+    : (issues.push('unknown_service_type'), UNKNOWN_SERVICE_TYPE);
 
   const status = (STATUSES as readonly string[]).includes(raw.status as string)
-    ? (raw.status as ITransformTask["status"])
-    : (issues.push("unknown_status"), "new");
+    ? (raw.status as ITransformTask['status'])
+    : (issues.push('unknown_status'), 'new');
 
   const symptom = isNonEmptyString(raw.symptom)
     ? raw.symptom.trim()
-    : (issues.push("missing_symptom"), "No symptom description provided.");
+    : (issues.push('missing_symptom'), 'No symptom description provided.');
 
   const createdAtMs =
     isNonEmptyString(raw.createdAt) && dayjs(raw.createdAt).isValid()
       ? raw.createdAt
-      : (issues.push("invalid_date"), null);
+      : (issues.push('invalid_date'), null);
 
   return {
     id: String(id),

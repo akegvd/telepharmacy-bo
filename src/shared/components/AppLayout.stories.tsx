@@ -1,11 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Container, Typography } from "@mui/material";
+import { Container, Typography } from '@mui/material';
 
-import { AppLayout } from "./AppLayout";
+import { AppLayout } from './AppLayout';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof AppLayout> = {
   component: AppLayout,
-  title: "Shared/AppLayout",
+  title: 'Shared/AppLayout',
   parameters: {
     nextjs: {
       appDirectory: true,

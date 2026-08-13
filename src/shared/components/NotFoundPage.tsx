@@ -1,8 +1,8 @@
-import SearchOffIcon from "@mui/icons-material/SearchOff";
-import { Button } from "@mui/material";
+import SearchOffIcon from '@mui/icons-material/SearchOff';
+import { Button } from '@mui/material';
 
-import NextLink from "./NextLink";
-import { StatusPage } from "./StatusPage";
+import NextLink from './NextLink';
+import { StatusPage } from './StatusPage';
 
 export function NotFoundPage() {
   return (

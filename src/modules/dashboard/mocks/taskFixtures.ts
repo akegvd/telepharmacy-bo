@@ -1,22 +1,22 @@
-import { ITransformTask } from "../types/utils/transforms/transformTask";
+import { ITransformTask } from '../types/utils/transforms/transformTask';
 
 const DEFAULTS: ITransformTask = {
-  id: "1",
-  customerName: "Somchai P.",
-  displayCustomerName: "Somchai P.",
-  serviceType: "video_call",
-  displayServiceType: "video_call",
-  status: "new",
-  displayStatus: "new",
-  displaySymptom: "Persistent dry cough",
-  displayCreatedAt: "2026-08-09T09:12:00.000Z",
+  id: '1',
+  customerName: 'Somchai P.',
+  displayCustomerName: 'Somchai P.',
+  serviceType: 'video_call',
+  displayServiceType: 'video_call',
+  status: 'new',
+  displayStatus: 'new',
+  displaySymptom: 'Persistent dry cough',
+  displayCreatedAt: '2026-08-09T09:12:00.000Z',
   issues: [],
   raw: {
-    customerName: "Somchai P.",
-    serviceType: "video_call",
-    symptom: "Persistent dry cough",
-    status: "new",
-    createdAt: "2026-08-09T09:12:00.000Z",
+    customerName: 'Somchai P.',
+    serviceType: 'video_call',
+    symptom: 'Persistent dry cough',
+    status: 'new',
+    createdAt: '2026-08-09T09:12:00.000Z',
   },
 };
 

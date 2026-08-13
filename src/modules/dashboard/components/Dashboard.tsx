@@ -1,33 +1,33 @@
-"use client";
+'use client';
 
-import { Alert, Box, Container, Stack, Typography } from "@mui/material";
-import { useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { Alert, Box, Container, Stack, Typography } from '@mui/material';
+import { useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 
-import { SearchResultWrapper } from "@/shared/components/SearchResultWrapper";
+import { SearchResultWrapper } from '@/shared/components/SearchResultWrapper';
 
-import { useTasksQuery } from "../hooks/useTaskQueries";
-import { filterTasks } from "../utils/filterTasks";
+import { useTasksQuery } from '../hooks/useTaskQueries';
+import { filterTasks } from '../utils/filterTasks';
 
-import { DataIssuesBanner } from "./DataIssuesBanner";
-import { FilterBar } from "./FilterBar";
-import { SummaryBar } from "./SummaryBar";
-import { TaskList } from "./TaskList";
+import { DataIssuesBanner } from './DataIssuesBanner';
+import { FilterBar } from './FilterBar';
+import { SummaryBar } from './SummaryBar';
+import { TaskList } from './TaskList';
 
 export function Dashboard() {
   const searchParams = useSearchParams();
   const { data, isLoading, isError, error, refetch, isRefetching } = useTasksQuery();
 
   const filters = {
-    q: searchParams.get("q") ?? "",
-    service: searchParams.get("service") ?? "all",
-    status: searchParams.get("status") ?? "all",
+    q: searchParams.get('q') ?? '',
+    service: searchParams.get('service') ?? 'all',
+    status: searchParams.get('status') ?? 'all',
   };
 
   const filteredTasks = useMemo(
     () => (data ? filterTasks(data.tasks, filters) : []),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data, filters.q, filters.service, filters.status],
+    [data, filters.q, filters.service, filters.status]
   );
 
   return (
@@ -39,7 +39,7 @@ export function Dashboard() {
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Review incoming consultation requests and move them through the workflow.
-            {isRefetching && " · refreshing…"}
+            {isRefetching && ' · refreshing…'}
           </Typography>
         </Box>
 
@@ -48,7 +48,7 @@ export function Dashboard() {
         <SearchResultWrapper
           isLoading={isLoading}
           isError={isError}
-          errorMessage={error instanceof Error ? error.message : "Something went wrong loading tasks."}
+          errorMessage={error instanceof Error ? error.message : 'Something went wrong loading tasks.'}
           onRetry={() => refetch()}
         >
           {data && (
@@ -58,9 +58,7 @@ export function Dashboard() {
 
               {filteredTasks.length === 0 ? (
                 <Alert severity="info" variant="outlined">
-                  {data.tasks.length === 0
-                    ? "No consultation requests yet."
-                    : "No requests match your filters."}
+                  {data.tasks.length === 0 ? 'No consultation requests yet.' : 'No requests match your filters.'}
                 </Alert>
               ) : (
                 <TaskList tasks={filteredTasks} />

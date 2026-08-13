@@ -1,11 +1,11 @@
-import { withQueryClient } from "@/shared/mocks/storyQueryClient";
+import { withQueryClient } from '@/shared/mocks/storyQueryClient';
 
-import { taskKeys } from "../hooks/useTaskQueries";
-import { makeTask } from "../mocks/taskFixtures";
+import { taskKeys } from '../hooks/useTaskQueries';
+import { makeTask } from '../mocks/taskFixtures';
 
-import { TaskDetailContent } from "./TaskDetailContent";
+import { TaskDetailContent } from './TaskDetailContent';
 
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 function seeded(id: string, overrides: Parameters<typeof makeTask>[0] = {}) {
   return withQueryClient((queryClient) => {
@@ -17,9 +17,9 @@ function seeded(id: string, overrides: Parameters<typeof makeTask>[0] = {}) {
 
 const meta: Meta<typeof TaskDetailContent> = {
   component: TaskDetailContent,
-  title: "Dashboard/TaskDetailContent",
+  title: 'Dashboard/TaskDetailContent',
   parameters: {
-    layout: "centered",
+    layout: 'centered',
   },
   decorators: [
     (Story) => (
@@ -34,31 +34,31 @@ export default meta;
 type Story = StoryObj<typeof TaskDetailContent>;
 
 export const New: Story = {
-  args: { id: "1" },
-  decorators: [seeded("1", { status: "new" })],
+  args: { id: '1' },
+  decorators: [seeded('1', { status: 'new' })],
 };
 
 export const InProgress: Story = {
-  args: { id: "2" },
-  decorators: [seeded("2", { status: "in_progress" })],
+  args: { id: '2' },
+  decorators: [seeded('2', { status: 'in_progress' })],
 };
 
 export const Completed: Story = {
-  args: { id: "3" },
-  decorators: [seeded("3", { status: "completed" })],
+  args: { id: '3' },
+  decorators: [seeded('3', { status: 'completed' })],
 };
 
 export const WithDataIssue: Story = {
-  args: { id: "4" },
+  args: { id: '4' },
   decorators: [
-    seeded("4", {
-      customerName: "Unknown customer",
-      issues: ["missing_name", "invalid_date"],
+    seeded('4', {
+      customerName: 'Unknown customer',
+      issues: ['missing_name', 'invalid_date'],
     }),
   ],
 };
 
 export const NotFound: Story = {
-  args: { id: "missing" },
-  decorators: [withQueryClient((qc) => qc.setQueryDefaults(taskKeys.detail("missing"), { enabled: false }))],
+  args: { id: 'missing' },
+  decorators: [withQueryClient((qc) => qc.setQueryDefaults(taskKeys.detail('missing'), { enabled: false }))],
 };

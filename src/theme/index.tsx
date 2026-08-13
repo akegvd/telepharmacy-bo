@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { CssBaseline, ThemeProvider } from "@mui/material";
+import { CssBaseline, ThemeProvider } from '@mui/material';
 
-import { theme } from "./theme";
+import { theme } from './theme';
 
 export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   return (

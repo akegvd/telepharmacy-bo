@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
-import { Button } from "@mui/material";
-import { useEffect } from "react";
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import { Button } from '@mui/material';
+import { useEffect } from 'react';
 
-import NextLink from "./NextLink";
-import { StatusPage } from "./StatusPage";
+import NextLink from './NextLink';
+import { StatusPage } from './StatusPage';
 
 interface IErrorPageProps {
   error: Error & { digest?: string };

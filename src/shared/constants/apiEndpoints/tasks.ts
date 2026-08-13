@@ -1,4 +1,4 @@
-const tasksBaseApiUrl = "/tasks";
+const tasksBaseApiUrl = '/tasks';
 
 const tasksApiEndpoints = Object.freeze({
   list: tasksBaseApiUrl,

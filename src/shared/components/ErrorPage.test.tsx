@@ -1,10 +1,10 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-import { ErrorPage } from "./ErrorPage";
+import { ErrorPage } from './ErrorPage';
 
-describe("ErrorPage", () => {
-  const consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
+describe('ErrorPage', () => {
+  const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
   afterEach(() => {
     consoleError.mockClear();
@@ -14,39 +14,37 @@ describe("ErrorPage", () => {
     consoleError.mockRestore();
   });
 
-  it("renders the error heading and a link back to the dashboard", () => {
-    render(<ErrorPage error={new Error("boom")} reset={jest.fn()} />);
+  it('renders the error heading and a link back to the dashboard', () => {
+    render(<ErrorPage error={new Error('boom')} reset={jest.fn()} />);
 
-    expect(screen.getByRole("heading", { name: "Something went wrong" })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Something went wrong' })).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "An unexpected error occurred. You can try again, or return to the dashboard.",
-      ),
+      screen.getByText('An unexpected error occurred. You can try again, or return to the dashboard.')
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Back to Dashboard" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole('link', { name: 'Back to Dashboard' })).toHaveAttribute('href', '/');
   });
 
-  it("shows a digest reference when the error includes one", () => {
-    const error = Object.assign(new Error("boom"), { digest: "abc123" });
+  it('shows a digest reference when the error includes one', () => {
+    const error = Object.assign(new Error('boom'), { digest: 'abc123' });
 
     render(<ErrorPage error={error} reset={jest.fn()} />);
 
-    expect(screen.getByText("Reference: abc123")).toBeInTheDocument();
+    expect(screen.getByText('Reference: abc123')).toBeInTheDocument();
   });
 
-  it("calls reset when Try again is clicked", async () => {
+  it('calls reset when Try again is clicked', async () => {
     const user = userEvent.setup();
     const reset = jest.fn();
 
-    render(<ErrorPage error={new Error("boom")} reset={reset} />);
+    render(<ErrorPage error={new Error('boom')} reset={reset} />);
 
-    await user.click(screen.getByRole("button", { name: "Try again" }));
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(reset).toHaveBeenCalledTimes(1);
   });
 
-  it("logs the error", () => {
-    const error = new Error("boom");
+  it('logs the error', () => {
+    const error = new Error('boom');
 
     render(<ErrorPage error={error} reset={jest.fn()} />);
 

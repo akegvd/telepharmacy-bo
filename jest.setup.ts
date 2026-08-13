@@ -1,8 +1,8 @@
-import "@testing-library/jest-dom";
+import '@testing-library/jest-dom';
 
 // jsdom does not implement matchMedia; MUI's useMediaQuery (used for
 // responsive column counts, e.g. in TaskList) needs it to run in tests.
-if (typeof window !== "undefined" && !window.matchMedia) {
+if (typeof window !== 'undefined' && !window.matchMedia) {
   window.matchMedia = jest.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,

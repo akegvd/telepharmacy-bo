@@ -1,11 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Typography } from "@mui/material";
+import { Typography } from '@mui/material';
 
-import { Modal } from "./Modal";
+import { Modal } from './Modal';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof Modal> = {
   component: Modal,
-  title: "Shared/Modal",
+  title: 'Shared/Modal',
   parameters: {
     nextjs: {
       appDirectory: true,

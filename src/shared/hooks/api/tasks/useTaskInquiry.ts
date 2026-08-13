@@ -1,8 +1,8 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 
-import { fetchTask } from "@/shared/services/api/tasks";
+import { fetchTask } from '@/shared/services/api/tasks';
 
-import { taskKeys } from "./taskKeys";
+import { taskKeys } from './taskKeys';
 
 interface IUseTaskInquiryOptions<T> {
   transformResponse: (data: unknown) => T;
@@ -11,7 +11,7 @@ interface IUseTaskInquiryOptions<T> {
 const useTaskInquiry = <T>(
   id: string,
   { transformResponse }: IUseTaskInquiryOptions<T>,
-  queryOptions?: Omit<UseQueryOptions<T>, "queryKey" | "queryFn">,
+  queryOptions?: Omit<UseQueryOptions<T>, 'queryKey' | 'queryFn'>
 ) =>
   useQuery<T>({
     queryKey: taskKeys.detail(id),

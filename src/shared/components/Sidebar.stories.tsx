@@ -1,10 +1,10 @@
-import { Sidebar } from "./Sidebar";
+import { Sidebar } from './Sidebar';
 
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof Sidebar> = {
   component: Sidebar,
-  title: "Shared/Sidebar",
+  title: 'Shared/Sidebar',
   parameters: {
     nextjs: {
       appDirectory: true,

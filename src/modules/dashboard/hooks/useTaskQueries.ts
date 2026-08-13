@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from '@tanstack/react-query';
 
-import { taskKeys } from "@/shared/hooks/api/tasks/taskKeys";
-import useTaskInquiry from "@/shared/hooks/api/tasks/useTaskInquiry";
-import useTasksInquiry from "@/shared/hooks/api/tasks/useTasksInquiry";
-import useUpdateTaskStatus from "@/shared/hooks/api/tasks/useUpdateTaskStatus";
+import { taskKeys } from '@/shared/hooks/api/tasks/taskKeys';
+import useTaskInquiry from '@/shared/hooks/api/tasks/useTaskInquiry';
+import useTasksInquiry from '@/shared/hooks/api/tasks/useTasksInquiry';
+import useUpdateTaskStatus from '@/shared/hooks/api/tasks/useUpdateTaskStatus';
 
-import { ITransformTasksResponse } from "../types/utils/transforms/transformTask";
-import { transformTask, transformTasksResponse } from "../utils/transforms/transformTask";
+import { ITransformTasksResponse } from '../types/utils/transforms/transformTask';
+import { transformTask, transformTasksResponse } from '../utils/transforms/transformTask';
 
 export { taskKeys };
 
@@ -20,12 +20,14 @@ export function useTasksQuery() {
 export function useTaskQuery(id: string) {
   const queryClient = useQueryClient();
 
-  return useTaskInquiry(id, { transformResponse: transformTask }, {
-    initialData: () =>
-      queryClient
-        .getQueryData<ITransformTasksResponse>(taskKeys.all)
-        ?.tasks.find((task) => task.id === id),
-  });
+  return useTaskInquiry(
+    id,
+    { transformResponse: transformTask },
+    {
+      initialData: () =>
+        queryClient.getQueryData<ITransformTasksResponse>(taskKeys.all)?.tasks.find((task) => task.id === id),
+    }
+  );
 }
 
 export function useUpdateTaskStatusMutation() {
@@ -42,12 +44,10 @@ export function useUpdateTaskStatusMutation() {
           (current) =>
             current && {
               ...current,
-              tasks: current.tasks.map((task) =>
-                task.id === updated.id ? updated : task,
-              ),
-            },
+              tasks: current.tasks.map((task) => (task.id === updated.id ? updated : task)),
+            }
         );
       },
-    },
+    }
   );
 }

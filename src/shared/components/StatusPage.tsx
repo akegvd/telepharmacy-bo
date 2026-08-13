@@ -1,6 +1,6 @@
-import { Box, Container, Stack, Typography } from "@mui/material";
+import { Box, Container, Stack, Typography } from '@mui/material';
 
-type TStatusPageTone = "primary" | "error";
+type TStatusPageTone = 'primary' | 'error';
 
 interface IStatusPageProps {
   icon: React.ReactNode;
@@ -14,34 +14,26 @@ interface IStatusPageProps {
 
 const TONE_SX = {
   primary: {
-    bgcolor: "primary.lighter",
-    color: "primary.main",
+    bgcolor: 'primary.lighter',
+    color: 'primary.main',
   },
   error: {
-    bgcolor: "error.lighter",
-    color: "error.main",
+    bgcolor: 'error.lighter',
+    color: 'error.main',
   },
 } as const;
 
-export function StatusPage({
-  icon,
-  tone = "primary",
-  code,
-  title,
-  description,
-  detail,
-  children,
-}: IStatusPageProps) {
-  const titleId = "status-page-title";
+export function StatusPage({ icon, tone = 'primary', code, title, description, detail, children }: IStatusPageProps) {
+  const titleId = 'status-page-title';
 
   return (
     <Container
       maxWidth="sm"
       sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: { xs: "70vh", sm: "75vh" },
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: { xs: '70vh', sm: '75vh' },
         py: 4,
       }}
     >
@@ -49,16 +41,16 @@ export function StatusPage({
         component="section"
         aria-labelledby={titleId}
         spacing={2}
-        sx={{ alignItems: "center", textAlign: "center" }}
+        sx={{ alignItems: 'center', textAlign: 'center' }}
       >
         <Box
           sx={{
             width: 96,
             height: 96,
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             ...TONE_SX[tone],
           }}
         >
@@ -96,11 +88,7 @@ export function StatusPage({
         ) : null}
 
         {children ? (
-          <Stack
-            direction="row"
-            spacing={1.5}
-            sx={{ pt: 1, flexWrap: "wrap", justifyContent: "center" }}
-          >
+          <Stack direction="row" spacing={1.5} sx={{ pt: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
             {children}
           </Stack>
         ) : null}

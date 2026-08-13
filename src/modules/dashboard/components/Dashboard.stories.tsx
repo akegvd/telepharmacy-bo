@@ -1,12 +1,12 @@
-import { withQueryClient } from "@/shared/mocks/storyQueryClient";
+import { withQueryClient } from '@/shared/mocks/storyQueryClient';
 
-import { taskKeys } from "../hooks/useTaskQueries";
-import { makeTask } from "../mocks/taskFixtures";
-import { ITransformTasksResponse } from "../types/utils/transforms/transformTask";
+import { taskKeys } from '../hooks/useTaskQueries';
+import { makeTask } from '../mocks/taskFixtures';
+import { ITransformTasksResponse } from '../types/utils/transforms/transformTask';
 
-import { Dashboard } from "./Dashboard";
+import { Dashboard } from './Dashboard';
 
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 function seededDashboard(result: ITransformTasksResponse) {
   return withQueryClient((queryClient) => {
@@ -19,9 +19,9 @@ function seededDashboard(result: ITransformTasksResponse) {
 
 const meta: Meta<typeof Dashboard> = {
   component: Dashboard,
-  title: "Dashboard/Dashboard",
+  title: 'Dashboard/Dashboard',
   parameters: {
-    layout: "fullscreen",
+    layout: 'fullscreen',
     nextjs: {
       appDirectory: true,
     },
@@ -35,9 +35,9 @@ export const Populated: Story = {
   decorators: [
     seededDashboard({
       tasks: [
-        makeTask({ id: "1", customerName: "Somchai P.", status: "new" }),
-        makeTask({ id: "2", customerName: "Nutcha R.", status: "in_progress", serviceType: "voice_call" }),
-        makeTask({ id: "3", customerName: "Areeya K.", status: "completed", serviceType: "chat" }),
+        makeTask({ id: '1', customerName: 'Somchai P.', status: 'new' }),
+        makeTask({ id: '2', customerName: 'Nutcha R.', status: 'in_progress', serviceType: 'voice_call' }),
+        makeTask({ id: '3', customerName: 'Areeya K.', status: 'completed', serviceType: 'chat' }),
       ],
       duplicateIds: [],
     }),
@@ -51,11 +51,8 @@ export const Empty: Story = {
 export const WithDataIssues: Story = {
   decorators: [
     seededDashboard({
-      tasks: [
-        makeTask({ id: "1", customerName: "Unknown customer", issues: ["missing_name"] }),
-        makeTask({ id: "2" }),
-      ],
-      duplicateIds: ["2"],
+      tasks: [makeTask({ id: '1', customerName: 'Unknown customer', issues: ['missing_name'] }), makeTask({ id: '2' })],
+      duplicateIds: ['2'],
     }),
   ],
 };
@@ -65,15 +62,15 @@ export const FilteredByStatus: Story = {
     nextjs: {
       appDirectory: true,
       navigation: {
-        query: { status: "new" },
+        query: { status: 'new' },
       },
     },
   },
   decorators: [
     seededDashboard({
       tasks: [
-        makeTask({ id: "1", customerName: "Somchai P.", status: "new" }),
-        makeTask({ id: "2", customerName: "Nutcha R.", status: "in_progress" }),
+        makeTask({ id: '1', customerName: 'Somchai P.', status: 'new' }),
+        makeTask({ id: '2', customerName: 'Nutcha R.', status: 'in_progress' }),
       ],
       duplicateIds: [],
     }),

@@ -1,11 +1,10 @@
-import { FilterBar } from "./FilterBar";
+import { FilterBar } from './FilterBar';
 
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof FilterBar> = {
   component: FilterBar,
-  title: "Dashboard/FilterBar",
+  title: 'Dashboard/FilterBar',
   parameters: {
     nextjs: {
       appDirectory: true,
@@ -23,7 +22,7 @@ export const WithActiveFilters: Story = {
     nextjs: {
       appDirectory: true,
       navigation: {
-        query: { q: "Somchai", service: "video_call", status: "in_progress" },
+        query: { q: 'Somchai', service: 'video_call', status: 'in_progress' },
       },
     },
   },

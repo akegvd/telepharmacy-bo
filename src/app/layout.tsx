@@ -1,18 +1,15 @@
-import type { Metadata } from "next";
+import { AppLayout } from '@/shared/components/AppLayout';
 
-import { Providers } from "./providers";
-import { AppLayout } from "@/shared/components/AppLayout";
-import "./globals.css";
+import { Providers } from './providers';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Telepharmacy Task Dashboard",
-  description: "Manage incoming telepharmacy consultation requests.",
+  title: 'Telepharmacy Task Dashboard',
+  description: 'Manage incoming telepharmacy consultation requests.',
 };
 
-export default function RootLayout({
-  children,
-  modal,
-}: LayoutProps<"/">) {
+export default function RootLayout({ children, modal }: LayoutProps<'/'>) {
   return (
     <html lang="en">
       <body>
