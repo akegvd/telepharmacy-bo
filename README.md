@@ -6,6 +6,8 @@ Next.js 16 (App Router), React 19, TypeScript, MUI, TanStack Query.
 
 **Live demo:** [telepharmacy-bo.vercel.app](https://telepharmacy-bo.vercel.app/)
 
+![The dashboard: filter bar, status summary, and the task queue table](./demo.png)
+
 ## Prerequisites
 
 Node.js `24.19.0` (see `.nvmrc` — with [nvm](https://github.com/nvm-sh/nvm), run `nvm use`).
