@@ -1,4 +1,4 @@
-import { LoadingScreen } from './LoadingScreen';
+import LoadingScreen from './LoadingScreen';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

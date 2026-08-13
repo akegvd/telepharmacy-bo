@@ -1,6 +1,6 @@
 import { Container, Typography } from '@mui/material';
 
-import { AppLayout } from './AppLayout';
+import AppLayout from './AppLayout';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

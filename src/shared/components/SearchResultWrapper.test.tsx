@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { SearchResultWrapper } from './SearchResultWrapper';
+import SearchResultWrapper from './SearchResultWrapper';
 
 describe('SearchResultWrapper', () => {
   it('shows a spinner while loading', () => {

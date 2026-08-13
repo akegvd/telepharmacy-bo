@@ -5,7 +5,7 @@ import DATA_ISSUE from '../enums/dataIssue';
 import { makeTask } from '../mocks/taskFixtures';
 import { ITransformTaskItemResponse } from '../types/utils/transforms/transformTaskListResponse';
 
-import { TaskDetailContent } from './TaskDetailContent';
+import TaskDetailContent from './TaskDetailContent';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

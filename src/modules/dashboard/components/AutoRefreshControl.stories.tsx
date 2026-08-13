@@ -1,4 +1,4 @@
-import { AutoRefreshControl } from './AutoRefreshControl';
+import AutoRefreshControl from './AutoRefreshControl';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

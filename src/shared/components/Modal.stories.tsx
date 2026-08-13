@@ -1,6 +1,6 @@
 import { Typography } from '@mui/material';
 
-import { Modal } from './Modal';
+import Modal from './Modal';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

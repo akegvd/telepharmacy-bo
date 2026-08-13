@@ -1,4 +1,4 @@
-import { Sidebar } from './Sidebar';
+import Sidebar from './Sidebar';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import { SnackbarProvider } from '@/shared/components/SnackbarProvider';
+import SnackbarProvider from '@/shared/components/SnackbarProvider';
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
 import { taskKeys } from '@/shared/hooks/api/tasks/taskKeys';

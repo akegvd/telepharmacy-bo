@@ -7,10 +7,12 @@ interface IStatusChipProps {
   color?: TStatusColor | null;
 }
 
-export const StatusChip = ({ label, color }: IStatusChipProps) => {
+const StatusChip = ({ label, color }: IStatusChipProps) => {
   if (!color) {
     return <Chip size="small" label={label || 'Unrecognized'} variant="outlined" />;
   }
 
   return <Chip size="small" label={label} color={color} variant="filled" />;
 };
+
+export default StatusChip;

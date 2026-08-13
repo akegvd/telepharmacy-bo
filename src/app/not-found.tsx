@@ -1,4 +1,4 @@
-import { NotFoundPage } from '@/shared/components/NotFoundPage';
+import NotFoundPage from '@/shared/components/NotFoundPage';
 
 import type { Metadata } from 'next';
 

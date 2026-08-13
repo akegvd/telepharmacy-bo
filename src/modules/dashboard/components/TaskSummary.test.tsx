@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import DATA_ISSUE from '../enums/dataIssue';
 import { makeTask } from '../mocks/taskFixtures';
 
-import { TaskSummary } from './TaskSummary';
+import TaskSummary from './TaskSummary';
 
 describe('TaskSummary', () => {
   it('shows the customer name, status, service type, and requested time', () => {

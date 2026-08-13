@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useMemo, useState } from 'react';
 
-import { LoadingScreen } from '../components/LoadingScreen';
+import LoadingScreen from '../components/LoadingScreen';
 
 export interface ILoadingContextValue {
   isLoading: boolean;
@@ -16,7 +16,7 @@ interface ILoadingProviderProps {
   children: React.ReactNode;
 }
 
-export const LoadingProvider = ({ children }: ILoadingProviderProps) => {
+const LoadingProvider = ({ children }: ILoadingProviderProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const showLoading = useCallback(() => setIsLoading(true), []);
@@ -31,3 +31,5 @@ export const LoadingProvider = ({ children }: ILoadingProviderProps) => {
     </LoadingContext.Provider>
   );
 };
+
+export default LoadingProvider;

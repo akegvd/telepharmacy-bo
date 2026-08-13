@@ -5,8 +5,8 @@ import { Alert, Divider, Stack, styled, Typography } from '@mui/material';
 import { mapDataIssueLabelByDataIssue } from '../constants/mapDataIssueLabelByDataIssue';
 import { ITransformTaskItemResponse } from '../types/utils/transforms/transformTaskListResponse';
 
-import { ServiceTypeIcon } from './ServiceTypeIcon';
-import { StatusChip } from './StatusChip';
+import ServiceTypeIcon from './ServiceTypeIcon';
+import StatusChip from './StatusChip';
 
 interface ITaskSummaryProps {
   task: ITransformTaskItemResponse;
@@ -17,7 +17,7 @@ const FieldLabel = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-export const TaskSummary = ({ task, dense = false }: ITaskSummaryProps) => {
+const TaskSummary = ({ task, dense = false }: ITaskSummaryProps) => {
   return (
     <Stack spacing={dense ? 1.25 : 2}>
       <Stack direction="row" spacing={1} sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -63,3 +63,5 @@ export const TaskSummary = ({ task, dense = false }: ITaskSummaryProps) => {
     </Stack>
   );
 };
+
+export default TaskSummary;

@@ -5,7 +5,7 @@ import { withQueryClient } from '@/shared/mocks/storyQueryClient';
 import DATA_ISSUE from '../enums/dataIssue';
 import { makeTask } from '../mocks/taskFixtures';
 
-import { TaskCard } from './TaskCard';
+import TaskCard from './TaskCard';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

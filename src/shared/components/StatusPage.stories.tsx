@@ -2,7 +2,7 @@ import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import { Button } from '@mui/material';
 
-import { StatusPage } from './StatusPage';
+import StatusPage from './StatusPage';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

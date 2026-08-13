@@ -11,7 +11,7 @@ const mapVariantToAlertSeverity: Partial<Record<VariantType, AlertProps['severit
   info: 'info',
 };
 
-export const Toast = forwardRef<HTMLDivElement, CustomContentProps>(
+const Toast = forwardRef<HTMLDivElement, CustomContentProps>(
   ({ id, message, variant, style, className }, ref) => {
     const { closeSnackbar } = useSnackbar();
 
@@ -32,3 +32,5 @@ export const Toast = forwardRef<HTMLDivElement, CustomContentProps>(
 );
 
 Toast.displayName = 'Toast';
+
+export default Toast;

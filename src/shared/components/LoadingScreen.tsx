@@ -1,6 +1,6 @@
 import { alpha, Box, Stack, styled, Typography } from '@mui/material';
 
-import { LoadingSpinner } from './LoadingSpinner';
+import LoadingSpinner from './LoadingSpinner';
 
 const Overlay = styled(Box)(({ theme }) => ({
   position: 'fixed',
@@ -16,7 +16,7 @@ const Content = styled(Stack)({
   alignItems: 'center',
 });
 
-export const LoadingScreen = () => {
+const LoadingScreen = () => {
   return (
     <Overlay>
       <Content spacing={1.5}>
@@ -28,3 +28,5 @@ export const LoadingScreen = () => {
     </Overlay>
   );
 };
+
+export default LoadingScreen;

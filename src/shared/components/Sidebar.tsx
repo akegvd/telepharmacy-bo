@@ -89,7 +89,7 @@ const CollapseToggle = styled(IconButton, {
   },
 }));
 
-export const Sidebar = () => {
+const Sidebar = () => {
   const pathname = usePathname();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -140,3 +140,5 @@ export const Sidebar = () => {
     </>
   );
 };
+
+export default Sidebar;

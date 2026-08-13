@@ -2,7 +2,7 @@
 
 import { AppBar, Box, styled, Toolbar, Typography } from '@mui/material';
 
-import { Sidebar } from './Sidebar';
+import Sidebar from './Sidebar';
 
 interface IAppLayoutProps {
   children: React.ReactNode;
@@ -32,7 +32,7 @@ const Main = styled('main')({
   minWidth: 0,
 });
 
-export const AppLayout = ({ children }: IAppLayoutProps) => {
+const AppLayout = ({ children }: IAppLayoutProps) => {
   return (
     <Root>
       <HeaderBar position="fixed" color="inherit" elevation={0}>
@@ -54,3 +54,5 @@ export const AppLayout = ({ children }: IAppLayoutProps) => {
     </Root>
   );
 };
+
+export default AppLayout;

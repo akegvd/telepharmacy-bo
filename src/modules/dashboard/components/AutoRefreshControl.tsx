@@ -22,7 +22,7 @@ const Root = styled(Stack)({
 const getSecondsUntilRefresh = (dataUpdatedAt: number, intervalMs: number) =>
   Math.max(0, Math.ceil((dataUpdatedAt + intervalMs - Date.now()) / 1000));
 
-export const AutoRefreshControl = ({
+const AutoRefreshControl = ({
   isPaused,
   isRefreshing,
   dataUpdatedAt,
@@ -68,3 +68,5 @@ export const AutoRefreshControl = ({
     </Root>
   );
 };
+
+export default AutoRefreshControl;

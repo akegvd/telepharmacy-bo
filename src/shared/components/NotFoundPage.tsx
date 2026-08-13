@@ -2,9 +2,9 @@ import SearchOffIcon from '@mui/icons-material/SearchOff';
 import { Button } from '@mui/material';
 
 import NextLink from './NextLink';
-import { StatusPage } from './StatusPage';
+import StatusPage from './StatusPage';
 
-export const NotFoundPage = () => {
+const NotFoundPage = () => {
   return (
     <StatusPage
       tone="primary"
@@ -19,3 +19,5 @@ export const NotFoundPage = () => {
     </StatusPage>
   );
 };
+
+export default NotFoundPage;

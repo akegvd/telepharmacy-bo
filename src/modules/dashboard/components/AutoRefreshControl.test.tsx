@@ -1,7 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { AutoRefreshControl } from './AutoRefreshControl';
+import AutoRefreshControl from './AutoRefreshControl';
 
 const INTERVAL_MS = 15_000;
 

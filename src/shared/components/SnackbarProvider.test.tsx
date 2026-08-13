@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { type ReactNode } from 'react';
 
-import { SnackbarProvider } from './SnackbarProvider';
-import { Toast } from './Toast';
+import SnackbarProvider from './SnackbarProvider';
+import Toast from './Toast';
 
 const mockNotistackProviderProps: Record<string, unknown> = {};
 

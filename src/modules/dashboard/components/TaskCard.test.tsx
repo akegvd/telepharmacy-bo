@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { SnackbarProvider } from '@/shared/components/SnackbarProvider';
+import SnackbarProvider from '@/shared/components/SnackbarProvider';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
 import { updateTaskStatus } from '@/shared/services/api/tasks';
 import { ITaskItemResponse } from '@/shared/types/api/tasks';
@@ -14,7 +14,7 @@ const mockUpdateTaskStatus = updateTaskStatus as jest.MockedFunction<typeof upda
 import DATA_ISSUE from '../enums/dataIssue';
 import { makeTask } from '../mocks/taskFixtures';
 
-import { TaskCard } from './TaskCard';
+import TaskCard from './TaskCard';
 
 const renderCard = (overrides: Parameters<typeof makeTask>[0] = {}) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import { LoadingScreen } from './LoadingScreen';
+import LoadingScreen from './LoadingScreen';
 
 describe('LoadingScreen', () => {
   it('renders a full-screen loading indicator', () => {

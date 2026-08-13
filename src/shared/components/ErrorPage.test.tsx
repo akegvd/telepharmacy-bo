@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { ErrorPage } from './ErrorPage';
+import ErrorPage from './ErrorPage';
 
 describe('ErrorPage', () => {
   it('renders the error heading and a link back to the dashboard', () => {

@@ -4,7 +4,7 @@ jest.mock('next/navigation', () => ({
   usePathname: () => '/',
 }));
 
-import { AppLayout } from './AppLayout';
+import AppLayout from './AppLayout';
 
 describe('AppLayout', () => {
   it('renders the sidebar navigation and the page content', () => {

@@ -16,7 +16,7 @@ const CloseButton = styled(IconButton)(({ theme }) => ({
   top: theme.spacing(1),
 }));
 
-export const Modal = ({ children, open, onClose, onExited }: IModalProps) => {
+const Modal = ({ children, open, onClose, onExited }: IModalProps) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" slotProps={{ transition: { onExited } }}>
       <CloseButton aria-label="Close" onClick={onClose}>
@@ -26,3 +26,5 @@ export const Modal = ({ children, open, onClose, onExited }: IModalProps) => {
     </Dialog>
   );
 };
+
+export default Modal;

@@ -4,7 +4,7 @@ import TASK_STATUS from '@/shared/enums/api/tasks/status';
 import DATA_ISSUE from '../enums/dataIssue';
 import { makeTask } from '../mocks/taskFixtures';
 
-import { TaskSummary } from './TaskSummary';
+import TaskSummary from './TaskSummary';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

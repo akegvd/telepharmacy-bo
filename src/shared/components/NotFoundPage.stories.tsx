@@ -1,4 +1,4 @@
-import { NotFoundPage } from './NotFoundPage';
+import NotFoundPage from './NotFoundPage';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

@@ -1,5 +1,5 @@
-import { AppLayout } from '@/shared/components/AppLayout';
-import { DevApiControlPanel } from '@/shared/dev/components/DevApiControlPanel';
+import AppLayout from '@/shared/components/AppLayout';
+import DevApiControlPanel from '@/shared/dev/components/DevApiControlPanel';
 
 import Providers from './providers';
 

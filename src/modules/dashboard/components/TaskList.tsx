@@ -16,13 +16,13 @@ import {
 } from '@mui/material';
 import { KeyboardEvent, memo, useCallback, useMemo } from 'react';
 
-import { LoadingSpinner } from '@/shared/components/LoadingSpinner';
+import LoadingSpinner from '@/shared/components/LoadingSpinner';
 
 import { taskListHeight, taskListTableMinWidth } from '../constants/taskList';
 import { ITransformTaskItemResponse } from '../types/utils/transforms/transformTaskListResponse';
 
-import { ServiceTypeIcon } from './ServiceTypeIcon';
-import { StatusChip } from './StatusChip';
+import ServiceTypeIcon from './ServiceTypeIcon';
+import StatusChip from './StatusChip';
 
 const DATA_ISSUE_REMARK = 'Some data invalid';
 

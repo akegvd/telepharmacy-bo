@@ -6,7 +6,7 @@ import DATA_ISSUE from '../enums/dataIssue';
 import { makeTask } from '../mocks/taskFixtures';
 import { buildTaskListSummary } from '../utils/transforms/transformTaskListResponse';
 
-import { SummaryBar } from './SummaryBar';
+import SummaryBar from './SummaryBar';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

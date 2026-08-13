@@ -1,12 +1,12 @@
 import { alpha, Box, Stack, styled } from '@mui/material';
 import { memo } from 'react';
 
-import { LoadingSpinner } from '@/shared/components/LoadingSpinner';
+import LoadingSpinner from '@/shared/components/LoadingSpinner';
 
 import { taskListHeight } from '../constants/taskList';
 import { ITransformTaskItemResponse } from '../types/utils/transforms/transformTaskListResponse';
 
-import { TaskCard } from './TaskCard';
+import TaskCard from './TaskCard';
 
 interface ITaskGridProps {
   taskList: ITransformTaskItemResponse[];
