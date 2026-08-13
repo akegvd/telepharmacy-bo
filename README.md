@@ -4,6 +4,8 @@ A dashboard pharmacists use to manage incoming telepharmacy consultation request
 
 Built with Next.js 16 (App Router), React 19, TypeScript, MUI, and TanStack Query. See [`TASK.md`](./TASK.md) for the original brief.
 
+**Live demo:** [telepharmacy-bo.vercel.app](https://telepharmacy-bo.vercel.app/)
+
 ## Prerequisites
 
 - Node.js `24.19.0` (see `.nvmrc`). If you use [nvm](https://github.com/nvm-sh/nvm), run `nvm use`.

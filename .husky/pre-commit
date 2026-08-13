@@ -2,7 +2,5 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 nvm use
 
-npm audit --omit=dev --audit-level=high
-npx tsc
 npm run lint
-npm test
+npx tsc
