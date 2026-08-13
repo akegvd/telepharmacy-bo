@@ -1,25 +1,19 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
-import { taskKeys } from '@/shared/hooks/api/tasks/taskKeys';
 import { useToast } from '@/shared/hooks/useToast';
 
 import useCreateRandomTask from './useCreateRandomTask';
 import useResetTaskList from './useResetTaskList';
 
+/**
+ * Deliberately leaves the task list cache untouched. Invalidating here would pull the change
+ * in immediately and hide whether the dashboard's auto-refresh poll picked it up on its own,
+ * which is exactly what these controls exist to exercise.
+ */
 export const useDevTaskApiControls = () => {
-  const queryClient = useQueryClient();
   const { showToast } = useToast();
-
-  const handleSuccess = useCallback(
-    (message: string) => {
-      queryClient.invalidateQueries({ queryKey: taskKeys.all });
-      showToast(message, { variant: 'success' });
-    },
-    [queryClient, showToast]
-  );
 
   const handleError = useCallback(
     (error: unknown) => {
@@ -29,12 +23,12 @@ export const useDevTaskApiControls = () => {
   );
 
   const addRandomTaskMutation = useCreateRandomTask({
-    onSuccess: () => handleSuccess('Random task added.'),
+    onSuccess: () => showToast('Random task added — waiting for the next refresh.', { variant: 'success' }),
     onError: handleError,
   });
 
   const resetTaskListMutation = useResetTaskList({
-    onSuccess: () => handleSuccess('Tasks reset from db.json.'),
+    onSuccess: () => showToast('Tasks reset from db.json — waiting for the next refresh.', { variant: 'success' }),
     onError: handleError,
   });
 

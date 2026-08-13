@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 
 import { SnackbarProvider } from '@/shared/components/SnackbarProvider';
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
@@ -30,7 +30,7 @@ const makeRawTask = (overrides: Partial<ITaskItemResponse> = {}): ITaskItemRespo
   };
 };
 
-/** Stands in for whatever list query a page has mounted, so we can watch it get invalidated. */
+/** Stands in for whatever list query a page has mounted, so we can watch whether it refetches. */
 const useTaskListSpyQuery = () => {
   return useQuery({ queryKey: taskKeys.list(), queryFn: () => fetchTaskList() });
 };
@@ -55,6 +55,12 @@ const newClient = () => {
   return new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
 };
 
+const flushPendingWork = async () => {
+  await act(async () => {
+    await Promise.resolve();
+  });
+};
+
 describe('useDevTaskApiControls', () => {
   beforeEach(() => {
     mockCreateRandomTask.mockReset();
@@ -62,7 +68,7 @@ describe('useDevTaskApiControls', () => {
     mockFetchTaskList.mockReset();
   });
 
-  it('refetches the task list after adding a random task', async () => {
+  it('adds a random task without refetching the list, leaving that to auto-refresh', async () => {
     mockFetchTaskList.mockResolvedValue([makeRawTask()]);
     mockCreateRandomTask.mockResolvedValue(makeRawTask({ id: '21' }));
 
@@ -76,11 +82,13 @@ describe('useDevTaskApiControls', () => {
     result.current.addRandomTaskMutation.mutate();
 
     await waitFor(() => expect(result.current.addRandomTaskMutation.isSuccess).toBe(true));
-    await waitFor(() => expect(mockFetchTaskList).toHaveBeenCalledTimes(2));
+    await flushPendingWork();
+
     expect(mockCreateRandomTask).toHaveBeenCalledTimes(1);
+    expect(mockFetchTaskList).toHaveBeenCalledTimes(1);
   });
 
-  it('refetches the task list after a reset', async () => {
+  it('resets the list without refetching it, leaving that to auto-refresh', async () => {
     mockFetchTaskList.mockResolvedValue([makeRawTask()]);
     mockResetTaskList.mockResolvedValue([makeRawTask()]);
 
@@ -93,11 +101,13 @@ describe('useDevTaskApiControls', () => {
     result.current.resetTaskListMutation.mutate();
 
     await waitFor(() => expect(result.current.resetTaskListMutation.isSuccess).toBe(true));
-    await waitFor(() => expect(mockFetchTaskList).toHaveBeenCalledTimes(2));
+    await flushPendingWork();
+
     expect(mockResetTaskList).toHaveBeenCalledTimes(1);
+    expect(mockFetchTaskList).toHaveBeenCalledTimes(1);
   });
 
-  it('surfaces a failed action instead of invalidating the list', async () => {
+  it('surfaces a failed action', async () => {
     mockFetchTaskList.mockResolvedValue([makeRawTask()]);
     mockCreateRandomTask.mockRejectedValue(new Error('Could not reach the API.'));
 

@@ -100,7 +100,7 @@ describe('DevApiControlPanel', () => {
     await user.click(screen.getByRole('button', { name: 'Add random task' }));
 
     await waitFor(() => expect(mockCreateRandomTask).toHaveBeenCalledTimes(1));
-    expect(await screen.findByText('Random task added.')).toBeInTheDocument();
+    expect(await screen.findByText('Random task added — waiting for the next refresh.')).toBeInTheDocument();
   });
 
   it('resets the API back to its db.json seed', async () => {
@@ -112,7 +112,7 @@ describe('DevApiControlPanel', () => {
     await user.click(screen.getByRole('button', { name: 'Reset from db.json' }));
 
     await waitFor(() => expect(mockResetTaskList).toHaveBeenCalledTimes(1));
-    expect(await screen.findByText('Tasks reset from db.json.')).toBeInTheDocument();
+    expect(await screen.findByText('Tasks reset from db.json — waiting for the next refresh.')).toBeInTheDocument();
   });
 
   it('reports a failed action', async () => {
