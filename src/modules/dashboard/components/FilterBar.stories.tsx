@@ -1,6 +1,6 @@
 import { useArgs } from 'storybook/preview-api';
 
-import { FilterBar } from './FilterBar';
+import FilterBar from './FilterBar';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

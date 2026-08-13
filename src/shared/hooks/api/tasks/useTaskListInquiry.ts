@@ -1,4 +1,4 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, UseQueryOptions } from '@tanstack/react-query';
 
 import { fetchTaskList } from '@/shared/services/api/tasks';
 import { ITaskItemResponse } from '@/shared/types/api/tasks';
@@ -18,6 +18,9 @@ const useTaskListInquiry = <T>(
   useQuery<T>({
     queryKey: taskKeys.list(params),
     queryFn: () => fetchTaskList(params).then(transformResponse),
+    // Changing a filter changes the query key; without this the list would unmount
+    // into a loading spinner on every keystroke that lands in the URL.
+    placeholderData: keepPreviousData,
     ...queryOptions,
   });
 

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import { getDateField, typeDateField } from '../mocks/datePickerField';
 
-import { FilterBar } from './FilterBar';
+import FilterBar from './FilterBar';
 
 const defaultProps = {
   search: '',
@@ -25,19 +25,21 @@ describe('FilterBar', () => {
     expect(screen.getByLabelText('Search customer')).toHaveValue('Somchai');
   });
 
-  it('calls onSearchChange as the user types, without debouncing itself', async () => {
-    const user = userEvent.setup();
+  it('reports the search value once typing pauses, not on every keystroke', async () => {
+    jest.useFakeTimers({ advanceTimers: true });
+    const user = userEvent.setup({ delay: null });
     const onSearchChange = jest.fn();
     render(<FilterBar {...defaultProps} onSearchChange={onSearchChange} />);
 
     await user.type(screen.getByLabelText('Search customer'), 'abc');
+    expect(onSearchChange).not.toHaveBeenCalled();
 
-    // The input stays controlled by the `search` prop (never updated here), so
-    // each keystroke reports just the newly typed character, not an accumulated value.
-    expect(onSearchChange).toHaveBeenCalledTimes(3);
-    expect(onSearchChange).toHaveBeenNthCalledWith(1, 'a');
-    expect(onSearchChange).toHaveBeenNthCalledWith(2, 'b');
-    expect(onSearchChange).toHaveBeenNthCalledWith(3, 'c');
+    await jest.advanceTimersByTimeAsync(300);
+
+    expect(onSearchChange).toHaveBeenCalledTimes(1);
+    expect(onSearchChange).toHaveBeenCalledWith('abc');
+
+    jest.useRealTimers();
   });
 
   it('calls onServiceChange when the service filter changes', async () => {

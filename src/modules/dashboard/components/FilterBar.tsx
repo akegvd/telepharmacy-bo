@@ -5,7 +5,9 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, DatePickerSlotProps } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { Dayjs } from 'dayjs';
-import { ChangeEvent, useCallback } from 'react';
+import { ChangeEvent, memo, useCallback, useMemo } from 'react';
+
+import DebouncedSearchField from '@/shared/components/DebouncedSearchField';
 
 import { ALL } from '../constants/filters';
 import { mapDisplayTaskStatusLabelByStatus } from '../constants/mapDisplayTaskStatusLabelByStatus';
@@ -27,7 +29,7 @@ const FilterGrid = styled(Box)(({ theme }) => ({
   },
 }));
 
-const SearchField = styled(TextField)(({ theme }) => ({
+const SearchField = styled(DebouncedSearchField)(({ theme }) => ({
   [theme.breakpoints.up('sm')]: {
     gridColumn: 'span 2',
   },
@@ -53,7 +55,7 @@ export interface IFilterBarProps {
   onCreatedToChange: (value: string) => void;
 }
 
-export const FilterBar = ({
+const FilterBar = ({
   search,
   service,
   status,
@@ -65,10 +67,10 @@ export const FilterBar = ({
   onCreatedFromChange,
   onCreatedToChange,
 }: IFilterBarProps) => {
-  const handleSearchInputChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => onSearchChange(event.target.value),
-    [onSearchChange]
-  );
+  // Parsing on every render would hand the pickers a brand new Dayjs each time,
+  // which is enough to make them re-sync their field state for no reason.
+  const createdFromValue = useMemo(() => toDateValue(createdFrom), [createdFrom]);
+  const createdToValue = useMemo(() => toDateValue(createdTo), [createdTo]);
 
   const handleServiceInputChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => onServiceChange(event.target.value),
@@ -96,8 +98,7 @@ export const FilterBar = ({
         label="Search customer"
         placeholder="e.g. Somchai"
         value={search}
-        onChange={handleSearchInputChange}
-        size="small"
+        onDebouncedChange={onSearchChange}
       />
       <TextField select label="Service" value={service} onChange={handleServiceInputChange} size="small">
         <MenuItem value={ALL}>All services</MenuItem>
@@ -118,19 +119,21 @@ export const FilterBar = ({
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker
           label="Created from"
-          value={toDateValue(createdFrom)}
+          value={createdFromValue}
           onChange={handleCreatedFromChange}
-          maxDate={toDateValue(createdTo) ?? undefined}
+          maxDate={createdToValue ?? undefined}
           slotProps={datePickerSlotProps}
         />
         <DatePicker
           label="Created to"
-          value={toDateValue(createdTo)}
+          value={createdToValue}
           onChange={handleCreatedToChange}
-          minDate={toDateValue(createdFrom) ?? undefined}
+          minDate={createdFromValue ?? undefined}
           slotProps={datePickerSlotProps}
         />
       </LocalizationProvider>
     </FilterGrid>
   );
 };
+
+export default memo(FilterBar);

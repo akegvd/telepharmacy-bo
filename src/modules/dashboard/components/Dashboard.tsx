@@ -2,7 +2,7 @@
 
 import { Alert, Box, Container, Divider, Paper, Stack, styled, Typography } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Modal } from '@/shared/components/Modal';
 import { SearchResultWrapper } from '@/shared/components/SearchResultWrapper';
@@ -12,7 +12,7 @@ import { useTaskListQuery } from '../hooks/useTaskListQuery';
 import { useTaskListViewMode } from '../hooks/useTaskListViewMode';
 
 import { AutoRefreshControl } from './AutoRefreshControl';
-import { FilterBar } from './FilterBar';
+import FilterBar from './FilterBar';
 import { SummaryBar } from './SummaryBar';
 import { TaskDetailContent } from './TaskDetailContent';
 import TaskGrid from './TaskGrid';
@@ -51,8 +51,6 @@ const ControlsGroup = styled(Stack)(({ theme }) => ({
   },
 }));
 
-const SEARCH_DEBOUNCE_MS = 300;
-
 const Dashboard = () => {
   const { replace, push } = useRouter();
   const searchParams = useSearchParams();
@@ -76,8 +74,6 @@ const Dashboard = () => {
     filters,
   });
 
-  const [searchInput, setSearchInput] = useState(customerName);
-  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const taskId = searchParams.get('taskId');
   const taskFromUrl = useMemo(() => data?.taskList.find((item) => item.id === taskId) ?? null, [data, taskId]);
 
@@ -99,18 +95,7 @@ const Dashboard = () => {
     [replace, searchParams]
   );
 
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      setSearchInput(value);
-      if (searchDebounceRef.current) {
-        clearTimeout(searchDebounceRef.current);
-      }
-      searchDebounceRef.current = setTimeout(() => {
-        updateParam('customerName', value, '');
-      }, SEARCH_DEBOUNCE_MS);
-    },
-    [updateParam]
-  );
+  const handleSearchChange = useCallback((value: string) => updateParam('customerName', value, ''), [updateParam]);
 
   const handleServiceChange = useCallback((value: string) => updateParam('service', value, 'all'), [updateParam]);
 
@@ -166,7 +151,7 @@ const Dashboard = () => {
         </Typography>
 
         <FilterBar
-          search={searchInput}
+          search={customerName}
           service={service}
           status={status}
           createdFrom={createdFrom}
