@@ -18,8 +18,9 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+import NextLink from "./NextLink";
 
 const DRAWER_WIDTH = 240;
 const COLLAPSED_DRAWER_WIDTH = 72;
@@ -80,7 +81,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             {NAV_ITEMS.map((item) => (
               <Tooltip key={item.href} title={collapsed ? item.label : ""} placement="right">
                 <ListItemButton
-                  component={Link}
+                  component={NextLink}
                   href={item.href}
                   selected={pathname === item.href}
                   sx={{ justifyContent: collapsed ? "center" : "flex-start", px: 2.5 }}

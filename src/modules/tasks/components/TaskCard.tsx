@@ -1,6 +1,6 @@
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { Box, Card, CardActionArea, CardContent, Stack, Tooltip, Typography } from "@mui/material";
-import Link from "next/link";
+import NextLink from "@/shared/components/NextLink";
 
 import { ServiceTypeIcon } from "./ServiceTypeIcon";
 import { StatusChip } from "./StatusChip";
@@ -18,7 +18,7 @@ const ISSUE_LABELS: Record<string, string> = {
 export function TaskCard({ task }: { task: NormalizedTask }) {
   return (
     <Card variant="outlined">
-      <CardActionArea component={Link} href={`/task/${task.id}`}>
+      <CardActionArea component={NextLink} href={`/task/${task.id}`}>
         <CardContent>
           <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "flex-start" }}>
             <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600 }}>
