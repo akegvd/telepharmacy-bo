@@ -38,7 +38,7 @@ src/
   modules/tasks/                the "tasks" bounded context — all task domain logic
     components/                 Dashboard, TaskCard, TaskDetailContent, FilterBar, ...
     hooks/useTaskQueries.ts     TanStack Query hooks (list, detail, status mutation)
-    services/taskApi.ts         task-specific API calls (built on shared/services/httpClient)
+    services/taskApi.ts         task-specific API calls (built on shared/services/axios)
     types/task.ts               Task / NormalizedTask data model
     utils/
       normalizeTask.ts          repairs/flags bad seed data at the API boundary
@@ -47,7 +47,8 @@ src/
   shared/                       generic, no business logic
     components/Modal.tsx        router.back()-driven dialog wrapper (used by the intercepted route)
     hooks/useDebouncedValue.ts
-    services/httpClient.ts      generic fetch wrapper + ApiError
+    services/axios.ts           shared axios instance, wired through the interceptor
+    services/interceptor.ts     response interceptor: normalizes failures into ApiError
   theme/                        MUI theme + AppThemeProvider
 ```
 

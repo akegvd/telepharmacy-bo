@@ -1,4 +1,4 @@
-import { apiFetch } from "@/shared/services/httpClient";
+import axiosInstance from "@/shared/services/axios";
 
 import { normalizeTasks } from "../utils/normalizeTask";
 import { NormalizedTask, Status } from "../types/task";
@@ -9,22 +9,19 @@ export type FetchTasksResult = {
 };
 
 export async function fetchTasks(): Promise<FetchTasksResult> {
-  const raw = await apiFetch<unknown[]>("/tasks");
-  return normalizeTasks(raw);
+  const { data } = await axiosInstance.get<unknown[]>("/tasks");
+  return normalizeTasks(data);
 }
 
 export async function fetchTask(id: string): Promise<NormalizedTask | null> {
-  const raw = await apiFetch<unknown>(`/tasks/${id}`);
-  return normalizeTasks([raw]).tasks[0] ?? null;
+  const { data } = await axiosInstance.get<unknown>(`/tasks/${id}`);
+  return normalizeTasks([data]).tasks[0] ?? null;
 }
 
 export async function updateTaskStatus(
   id: string,
   status: Status,
 ): Promise<NormalizedTask | null> {
-  const raw = await apiFetch<unknown>(`/tasks/${id}`, {
-    method: "PATCH",
-    body: JSON.stringify({ status }),
-  });
-  return normalizeTasks([raw]).tasks[0] ?? null;
+  const { data } = await axiosInstance.patch<unknown>(`/tasks/${id}`, { status });
+  return normalizeTasks([data]).tasks[0] ?? null;
 }
