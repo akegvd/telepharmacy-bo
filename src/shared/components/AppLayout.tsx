@@ -57,7 +57,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ display: "flex", flex: 1 }}>
+      <Box sx={{ display: "flex", flex: 1, position: "relative" }}>
         <Drawer
           variant="permanent"
           sx={{
@@ -75,27 +75,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             },
           }}
         >
-          <Toolbar
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: collapsed ? "center" : "space-between",
-              px: 1,
-            }}
-          >
-            {!collapsed && (
-              <Typography variant="subtitle1" noWrap sx={{ fontWeight: 700, pl: 1 }}>
-                Telepharmacy
-              </Typography>
-            )}
-            <IconButton
-              onClick={() => setCollapsed((prev) => !prev)}
-              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-            </IconButton>
-          </Toolbar>
-          <List component="nav" aria-label="Main navigation">
+          <Toolbar />
+          <List component="nav" aria-label="Main navigation" sx={{ pt: 1 }}>
             {NAV_ITEMS.map((item) => (
               <Tooltip key={item.href} title={collapsed ? item.label : ""} placement="right">
                 <ListItemButton
@@ -115,6 +96,28 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </List>
         </Drawer>
+
+        <IconButton
+          onClick={() => setCollapsed((prev) => !prev)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          sx={{
+            position: "fixed",
+            top: 76,
+            left: drawerWidth - 15,
+            width: 30,
+            height: 30,
+            bgcolor: "background.paper",
+            border: "1px solid",
+            borderColor: "divider",
+            boxShadow: 1,
+            zIndex: (t) => t.zIndex.drawer + 2,
+            transition: (t) =>
+              t.transitions.create("left", { duration: t.transitions.duration.shortest }),
+            "&:hover": { bgcolor: "action.hover" },
+          }}
+        >
+          {collapsed ? <ChevronRightIcon fontSize="small" /> : <ChevronLeftIcon fontSize="small" />}
+        </IconButton>
 
         <Box component="main" sx={{ flexGrow: 1, minWidth: 0 }}>
           <Toolbar />
