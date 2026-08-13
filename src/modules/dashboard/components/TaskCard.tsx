@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
-import { useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
@@ -17,7 +17,7 @@ interface ITaskCardProps {
   task: ITransformTaskItemResponse;
 }
 
-export const TaskCard = ({ task }: ITaskCardProps) => {
+const TaskCardComponent = ({ task }: ITaskCardProps) => {
   const mutation = useUpdateTaskStatusMutation();
   const { showToast } = useToast();
   const nextStatus = task.nextStatus;
@@ -87,3 +87,5 @@ export const TaskCard = ({ task }: ITaskCardProps) => {
     </Card>
   );
 };
+
+export const TaskCard = memo(TaskCardComponent);
