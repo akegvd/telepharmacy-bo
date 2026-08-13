@@ -1,15 +1,14 @@
-import { Container, Skeleton, Stack } from "@mui/material";
-import { Suspense } from "react";
+import { Container, Stack } from '@mui/material';
+import { Suspense } from 'react';
 
-import { Dashboard } from "@/modules/dashboard/components/Dashboard";
+import { Dashboard } from '@/modules/dashboard/components/Dashboard';
+import { LoadingSpinner } from '@/shared/components/LoadingSpinner';
 
 function DashboardFallback() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Stack spacing={2}>
-        <Skeleton variant="text" width={320} height={48} />
-        <Skeleton variant="rounded" height={56} />
-        <Skeleton variant="rounded" height={200} />
+      <Stack sx={{ alignItems: 'center', justifyContent: 'center', minHeight: 320 }}>
+        <LoadingSpinner size={40} />
       </Stack>
     </Container>
   );
