@@ -48,7 +48,7 @@ describe('FilterBar', () => {
     render(<FilterBar {...defaultProps} onServiceChange={onServiceChange} />);
 
     await user.click(screen.getByLabelText('Service'));
-    await user.click(await screen.findByRole('option', { name: 'video call' }));
+    await user.click(await screen.findByRole('option', { name: 'Video call' }));
 
     expect(onServiceChange).toHaveBeenCalledWith('video_call');
   });

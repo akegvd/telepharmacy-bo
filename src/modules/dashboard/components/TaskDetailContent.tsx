@@ -1,14 +1,12 @@
 'use client';
 
 import { Button, Stack, styled, Typography } from '@mui/material';
-import { useCallback, useState } from 'react';
 
 import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
-import { useToast } from '@/shared/hooks/useToast';
 
 import DATA_ISSUE from '../enums/dataIssue';
-import { useUpdateTaskStatusMutation } from '../hooks/useUpdateTaskStatusMutation';
+import { useAdvanceTaskStatus } from '../hooks/useAdvanceTaskStatus';
 import { ITransformTaskItemResponse } from '../types/utils/transforms/transformTaskListResponse';
 
 import { TaskSummary } from './TaskSummary';
@@ -22,39 +20,14 @@ const Footer = styled(Stack)({
 });
 
 export const TaskDetailContent = ({ task }: ITaskDetailContentProps) => {
-  const mutation = useUpdateTaskStatusMutation();
-  const { showToast } = useToast();
-  const nextStatus = task.nextStatus;
-  const [isConfirmingAdvance, setIsConfirmingAdvance] = useState(false);
-
-  const handleConfirmAdvance = useCallback(() => {
-    if (!nextStatus) {
-      return;
-    }
-
-    const nextStatusLabel = task.displayNextStatus;
-    mutation.mutate(
-      { id: task.id, status: nextStatus },
-      {
-        onSuccess: () => {
-          setIsConfirmingAdvance(false);
-          showToast(`Advanced to ${nextStatusLabel}.`, { variant: 'success' });
-        },
-        onError: () => {
-          setIsConfirmingAdvance(false);
-          showToast("Couldn't update the status. Please try again.", { variant: 'error' });
-        },
-      }
-    );
-  }, [mutation, nextStatus, showToast, task.displayNextStatus, task.id]);
-
-  const handleAdvanceClick = useCallback(() => {
-    setIsConfirmingAdvance(true);
-  }, []);
-
-  const handleCancelAdvance = useCallback(() => {
-    setIsConfirmingAdvance(false);
-  }, []);
+  const {
+    nextStatus,
+    isConfirmingAdvance,
+    isPending,
+    handleAdvanceClick,
+    handleConfirmAdvance,
+    handleCancelAdvance,
+  } = useAdvanceTaskStatus(task);
 
   return (
     <Stack spacing={2}>
@@ -81,7 +54,7 @@ export const TaskDetailContent = ({ task }: ITaskDetailContentProps) => {
           open={isConfirmingAdvance}
           title={`Advance ${task.displayCustomerName}'s request to ${task.displayNextStatus}?`}
           confirmLabel="Confirm"
-          loading={mutation.isPending}
+          loading={isPending}
           onCancel={handleCancelAdvance}
           onConfirm={handleConfirmAdvance}
         />

@@ -12,7 +12,7 @@ import {
   styled,
   Typography,
 } from '@mui/material';
-import { ReactNode } from 'react';
+import { ReactNode, useId } from 'react';
 
 export interface IConfirmDialogProps {
   open: boolean;
@@ -64,6 +64,9 @@ const ConfirmDialog = ({
   onCancel,
   onExited,
 }: IConfirmDialogProps) => {
+  const titleId = useId();
+  const descriptionId = useId();
+
   const handleClose: NonNullable<DialogProps['onClose']> = (_event, reason) => {
     if (reason === 'backdropClick') {
       return;
@@ -76,18 +79,18 @@ const ConfirmDialog = ({
     <Dialog
       open={open}
       onClose={handleClose}
-      aria-labelledby="confirm-dialog-title"
-      aria-describedby={description ? 'confirm-dialog-description' : undefined}
+      aria-labelledby={titleId}
+      aria-describedby={description ? descriptionId : undefined}
       slotProps={{ transition: { onExited } }}
     >
       <StyledDialogContent>
         <Body sx={{ pt: 2 }}>
           {icon}
-          <Typography id="confirm-dialog-title" variant="h6" color="text.primary" sx={{ mt: 1 }}>
+          <Typography id={titleId} variant="h6" color="text.primary" sx={{ mt: 1 }}>
             {title}
           </Typography>
           {description && typeof description === 'string' ? (
-            <Typography id="confirm-dialog-description" variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            <Typography id={descriptionId} variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               {description}
             </Typography>
           ) : (
