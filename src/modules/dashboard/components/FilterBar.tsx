@@ -10,6 +10,7 @@ import { ChangeEvent, memo, useCallback, useMemo } from 'react';
 import DebouncedSearchField from '@/shared/components/DebouncedSearchField';
 
 import { ALL } from '../constants/filters';
+import { mapDisplayServiceTypeLabelByServiceType } from '../constants/mapDisplayServiceTypeLabelByServiceType';
 import { mapDisplayTaskStatusLabelByStatus } from '../constants/mapDisplayTaskStatusLabelByStatus';
 import { serviceTypeOptionList } from '../constants/serviceTypeOptionList';
 import { taskStatusOptionList } from '../constants/taskStatusOptionList';
@@ -104,7 +105,7 @@ const FilterBar = ({
         <MenuItem value={ALL}>All services</MenuItem>
         {serviceTypeOptionList.map((type) => (
           <MenuItem key={type} value={type}>
-            {type.replace('_', ' ')}
+            {mapDisplayServiceTypeLabelByServiceType[type]}
           </MenuItem>
         ))}
       </TextField>
