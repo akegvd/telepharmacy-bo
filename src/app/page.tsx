@@ -3,6 +3,7 @@
 import { Container, Stack, styled } from '@mui/material';
 import { Suspense } from 'react';
 
+import { ChatLauncherButton } from '@/modules/chat/components/ChatLauncherButton';
 import Dashboard from '@/modules/dashboard/components/Dashboard';
 import { LoadingSpinner } from '@/shared/components/LoadingSpinner';
 
@@ -24,9 +25,13 @@ const DashboardFallback = () => {
 
 const Home = () => {
   return (
-    <Suspense fallback={<DashboardFallback />}>
-      <Dashboard />
-    </Suspense>
+    <>
+      <Suspense fallback={<DashboardFallback />}>
+        <Dashboard />
+      </Suspense>
+
+      <ChatLauncherButton />
+    </>
   );
 };
 
