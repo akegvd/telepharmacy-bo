@@ -1,5 +1,4 @@
 import { alpha, Box, Stack, styled } from '@mui/material';
-import { memo } from 'react';
 
 import { LoadingSpinner } from '@/shared/components/LoadingSpinner';
 
@@ -54,4 +53,4 @@ const TaskGrid = ({ taskList, isRefreshing = false }: ITaskGridProps) => {
   );
 };
 
-export default memo(TaskGrid);
+export default TaskGrid;

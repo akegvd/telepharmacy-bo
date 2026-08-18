@@ -2,7 +2,7 @@
 
 import { Alert, Box, Container, Divider, Paper, Stack, styled, Typography } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { Modal } from '@/shared/components/Modal';
 import { SearchResultWrapper } from '@/shared/components/SearchResultWrapper';
@@ -64,10 +64,7 @@ const Dashboard = () => {
   const createdTo = searchParams.get('createdTo') ?? '';
   const hasActiveFilters =
     customerName !== '' || service !== 'all' || status !== 'all' || createdFrom !== '' || createdTo !== '';
-  const filters = useMemo(
-    () => ({ customerName, serviceType: service, status, createdFrom, createdTo }),
-    [customerName, service, status, createdFrom, createdTo]
-  );
+  const filters = { customerName, serviceType: service, status, createdFrom, createdTo };
 
   const { data, isLoading, isError, error, refetch, isRefetching, dataUpdatedAt } = useTaskListQuery({
     isAutoRefreshEnabled: !isAutoRefreshPaused,
@@ -75,57 +72,51 @@ const Dashboard = () => {
   });
 
   const taskId = searchParams.get('taskId');
-  const taskFromUrl = useMemo(() => data?.taskList.find((item) => item.id === taskId) ?? null, [data, taskId]);
+  const taskFromUrl = data?.taskList.find((item) => item.id === taskId) ?? null;
 
   // The dialog's own open state is decoupled from `taskId` so closing can play its
   // exit transition before the param (and the taskFromUrl content behind it) is cleared.
   // Initialized from taskId to support opening straight from a deep link.
   const [isTaskDetailOpen, setIsTaskDetailOpen] = useState(!!taskId);
 
-  const updateParam = useCallback(
-    (key: string, value: string, emptyValue: string) => {
-      const params = new URLSearchParams(searchParams);
-      if (value === emptyValue) {
-        params.delete(key);
-      } else {
-        params.set(key, value);
-      }
-      replace(`/?${params.toString()}`, { scroll: false });
-    },
-    [replace, searchParams]
-  );
+  const updateParam = (key: string, value: string, emptyValue: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value === emptyValue) {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
+    replace(`/?${params.toString()}`, { scroll: false });
+  };
 
-  const handleSearchChange = useCallback((value: string) => updateParam('customerName', value, ''), [updateParam]);
+  const handleSearchChange = (value: string) => updateParam('customerName', value, '');
 
-  const handleServiceChange = useCallback((value: string) => updateParam('service', value, 'all'), [updateParam]);
+  const handleServiceChange = (value: string) => updateParam('service', value, 'all');
 
-  const handleStatusChange = useCallback((value: string) => updateParam('status', value, 'all'), [updateParam]);
+  const handleStatusChange = (value: string) => updateParam('status', value, 'all');
 
-  const handleCreatedFromChange = useCallback((value: string) => updateParam('createdFrom', value, ''), [updateParam]);
+  const handleCreatedFromChange = (value: string) => updateParam('createdFrom', value, '');
 
-  const handleCreatedToChange = useCallback((value: string) => updateParam('createdTo', value, ''), [updateParam]);
+  const handleCreatedToChange = (value: string) => updateParam('createdTo', value, '');
 
-  const handleSelectTask = useCallback(
-    (id: string) => {
-      const params = new URLSearchParams(searchParams);
-      params.set('taskId', id);
-      push(`/?${params.toString()}`, { scroll: false });
-      setIsTaskDetailOpen(true);
-    },
-    [push, searchParams]
-  );
+  const handleSelectTask = (id: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('taskId', id);
+    push(`/?${params.toString()}`, { scroll: false });
+    setIsTaskDetailOpen(true);
+  };
 
-  const handleTaskDetailClose = useCallback(() => {
+  const handleTaskDetailClose = () => {
     setIsTaskDetailOpen(false);
-  }, []);
+  };
 
-  const handleTaskDetailExited = useCallback(() => {
+  const handleTaskDetailExited = () => {
     const params = new URLSearchParams(searchParams);
     params.delete('taskId');
     push(`/?${params.toString()}`, { scroll: false });
-  }, [push, searchParams]);
+  };
 
-  const handleTogglePause = useCallback(() => {
+  const handleTogglePause = () => {
     const isResuming = isAutoRefreshPaused;
     setIsAutoRefreshPaused(!isResuming);
     // Resuming re-arms react-query's poll timer starting from now, not from the last
@@ -133,15 +124,15 @@ const Dashboard = () => {
     if (isResuming) {
       refetch();
     }
-  }, [isAutoRefreshPaused, refetch]);
+  };
 
-  const handleRetry = useCallback(() => {
+  const handleRetry = () => {
     refetch();
-  }, [refetch]);
+  };
 
-  const handleRefreshNow = useCallback(() => {
+  const handleRefreshNow = () => {
     refetch();
-  }, [refetch]);
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

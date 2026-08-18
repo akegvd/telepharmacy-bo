@@ -1,7 +1,7 @@
 'use client';
 
 import { TextField, TextFieldProps } from '@mui/material';
-import { ChangeEvent, memo, useCallback, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 const DEFAULT_DEBOUNCE_MS = 300;
 
@@ -49,22 +49,19 @@ const DebouncedSearchField = ({
     };
   }, []);
 
-  const handleChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const nextValue = event.target.value;
-      setInputValue(nextValue);
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextValue = event.target.value;
+    setInputValue(nextValue);
 
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
 
-      debounceRef.current = setTimeout(() => {
-        lastEmittedValueRef.current = nextValue;
-        onDebouncedChange(nextValue);
-      }, debounceMs);
-    },
-    [debounceMs, onDebouncedChange]
-  );
+    debounceRef.current = setTimeout(() => {
+      lastEmittedValueRef.current = nextValue;
+      onDebouncedChange(nextValue);
+    }, debounceMs);
+  };
 
   return (
     <TextField
@@ -78,4 +75,4 @@ const DebouncedSearchField = ({
   );
 };
 
-export default memo(DebouncedSearchField);
+export default DebouncedSearchField;

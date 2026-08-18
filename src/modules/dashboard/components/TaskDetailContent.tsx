@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Stack, styled, Typography } from '@mui/material';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
@@ -27,7 +27,7 @@ export const TaskDetailContent = ({ task }: ITaskDetailContentProps) => {
   const nextStatus = task.nextStatus;
   const [isConfirmingAdvance, setIsConfirmingAdvance] = useState(false);
 
-  const handleConfirmAdvance = useCallback(() => {
+  const handleConfirmAdvance = () => {
     if (!nextStatus) {
       return;
     }
@@ -46,15 +46,15 @@ export const TaskDetailContent = ({ task }: ITaskDetailContentProps) => {
         },
       }
     );
-  }, [mutation, nextStatus, showToast, task.displayNextStatus, task.id]);
+  };
 
-  const handleAdvanceClick = useCallback(() => {
+  const handleAdvanceClick = () => {
     setIsConfirmingAdvance(true);
-  }, []);
+  };
 
-  const handleCancelAdvance = useCallback(() => {
+  const handleCancelAdvance = () => {
     setIsConfirmingAdvance(false);
-  }, []);
+  };
 
   return (
     <Stack spacing={2}>

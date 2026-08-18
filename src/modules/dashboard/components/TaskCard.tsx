@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
@@ -23,7 +23,7 @@ export const TaskCard = ({ task }: ITaskCardProps) => {
   const nextStatus = task.nextStatus;
   const [isConfirmingAdvance, setIsConfirmingAdvance] = useState(false);
 
-  const handleConfirmAdvance = useCallback(() => {
+  const handleConfirmAdvance = () => {
     if (!nextStatus) {
       return;
     }
@@ -42,15 +42,15 @@ export const TaskCard = ({ task }: ITaskCardProps) => {
         },
       }
     );
-  }, [mutation, nextStatus, showToast, task.displayNextStatus, task.id]);
+  };
 
-  const handleAdvanceClick = useCallback(() => {
+  const handleAdvanceClick = () => {
     setIsConfirmingAdvance(true);
-  }, []);
+  };
 
-  const handleCancelAdvance = useCallback(() => {
+  const handleCancelAdvance = () => {
     setIsConfirmingAdvance(false);
-  }, []);
+  };
 
   return (
     <Card variant="outlined">

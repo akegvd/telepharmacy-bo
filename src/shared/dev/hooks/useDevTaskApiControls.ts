@@ -1,7 +1,5 @@
 'use client';
 
-import { useCallback } from 'react';
-
 import { useToast } from '@/shared/hooks/useToast';
 
 import useCreateRandomTask from './useCreateRandomTask';
@@ -15,12 +13,9 @@ import useResetTaskList from './useResetTaskList';
 export const useDevTaskApiControls = () => {
   const { showToast } = useToast();
 
-  const handleError = useCallback(
-    (error: unknown) => {
-      showToast(error instanceof Error ? error.message : 'The dev API action failed.', { variant: 'error' });
-    },
-    [showToast]
-  );
+  const handleError = (error: unknown) => {
+    showToast(error instanceof Error ? error.message : 'The dev API action failed.', { variant: 'error' });
+  };
 
   const addRandomTaskMutation = useCreateRandomTask({
     onSuccess: () => showToast('Random task added — waiting for the next refresh.', { variant: 'success' }),

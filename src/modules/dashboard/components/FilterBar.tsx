@@ -5,7 +5,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, DatePickerSlotProps } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { Dayjs } from 'dayjs';
-import { ChangeEvent, memo, useCallback, useMemo } from 'react';
+import { ChangeEvent } from 'react';
 
 import DebouncedSearchField from '@/shared/components/DebouncedSearchField';
 
@@ -69,28 +69,18 @@ const FilterBar = ({
 }: IFilterBarProps) => {
   // Parsing on every render would hand the pickers a brand new Dayjs each time,
   // which is enough to make them re-sync their field state for no reason.
-  const createdFromValue = useMemo(() => toDateValue(createdFrom), [createdFrom]);
-  const createdToValue = useMemo(() => toDateValue(createdTo), [createdTo]);
+  const createdFromValue = toDateValue(createdFrom);
+  const createdToValue = toDateValue(createdTo);
 
-  const handleServiceInputChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => onServiceChange(event.target.value),
-    [onServiceChange]
-  );
+  const handleServiceInputChange = (event: ChangeEvent<HTMLInputElement>) => onServiceChange(event.target.value);
 
-  const handleStatusInputChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => onStatusChange(event.target.value),
-    [onStatusChange]
-  );
+  const handleStatusInputChange = (event: ChangeEvent<HTMLInputElement>) => onStatusChange(event.target.value);
 
-  const handleCreatedFromChange = useCallback(
-    (value: Dayjs | null) => onCreatedFromChange(value?.isValid() ? value.format(DATE_VALUE_FORMAT) : ''),
-    [onCreatedFromChange]
-  );
+  const handleCreatedFromChange = (value: Dayjs | null) =>
+    onCreatedFromChange(value?.isValid() ? value.format(DATE_VALUE_FORMAT) : '');
 
-  const handleCreatedToChange = useCallback(
-    (value: Dayjs | null) => onCreatedToChange(value?.isValid() ? value.format(DATE_VALUE_FORMAT) : ''),
-    [onCreatedToChange]
-  );
+  const handleCreatedToChange = (value: Dayjs | null) =>
+    onCreatedToChange(value?.isValid() ? value.format(DATE_VALUE_FORMAT) : '');
 
   return (
     <FilterGrid>
@@ -136,4 +126,4 @@ const FilterBar = ({
   );
 };
 
-export default memo(FilterBar);
+export default FilterBar;

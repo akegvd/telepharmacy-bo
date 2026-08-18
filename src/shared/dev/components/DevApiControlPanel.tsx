@@ -6,7 +6,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { Button, Chip, Collapse, Divider, IconButton, Paper, Stack, styled, Typography } from '@mui/material';
 import { useIsFetching } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import { apiBaseUrl } from '@/shared/constants/api';
 import { taskKeys } from '@/shared/hooks/api/tasks/taskKeys';
@@ -60,17 +60,17 @@ export const DevApiControlPanelContent = () => {
 
   const isBusy = addRandomTaskMutation.isPending || resetTaskListMutation.isPending;
 
-  const handleToggleExpanded = useCallback(() => {
+  const handleToggleExpanded = () => {
     setIsExpanded((expanded) => !expanded);
-  }, []);
+  };
 
-  const handleAddRandomTask = useCallback(() => {
+  const handleAddRandomTask = () => {
     addRandomTaskMutation.mutate();
-  }, [addRandomTaskMutation]);
+  };
 
-  const handleResetTaskList = useCallback(() => {
+  const handleResetTaskList = () => {
     resetTaskListMutation.mutate();
-  }, [resetTaskListMutation]);
+  };
 
   return (
     <Root elevation={6}>

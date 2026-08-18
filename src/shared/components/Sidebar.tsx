@@ -17,7 +17,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { usePathname } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import NextLink from './NextLink';
 
@@ -97,10 +97,10 @@ export const Sidebar = () => {
   const userToggled = useRef(false);
   const drawerWidth = collapsed ? COLLAPSED_DRAWER_WIDTH : DRAWER_WIDTH;
 
-  const handleToggleCollapsed = useCallback(() => {
+  const handleToggleCollapsed = () => {
     userToggled.current = true;
     setCollapsed((prev) => !prev);
-  }, []);
+  };
 
   useEffect(() => {
     if (!userToggled.current) {

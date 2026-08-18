@@ -14,7 +14,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { KeyboardEvent, memo, useCallback, useMemo } from 'react';
+import { KeyboardEvent } from 'react';
 
 import { LoadingSpinner } from '@/shared/components/LoadingSpinner';
 
@@ -101,60 +101,55 @@ interface ITaskListProps {
 }
 
 const TaskList = ({ taskList, onSelectTask, isRefreshing = false }: ITaskListProps) => {
-  const rows = useMemo(() => taskList, [taskList]);
+  const renderRow = (task: ITransformTaskItemResponse, index: number) => {
+    const handleSelect = () => onSelectTask(task.id);
+    const handleKeyDown = (event: KeyboardEvent<HTMLTableRowElement>) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        handleSelect();
+      }
+    };
+    const hasDataIssue = task.issues.length > 0;
 
-  const renderRow = useCallback(
-    (task: ITransformTaskItemResponse, index: number) => {
-      const handleSelect = () => onSelectTask(task.id);
-      const handleKeyDown = (event: KeyboardEvent<HTMLTableRowElement>) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          handleSelect();
-        }
-      };
-      const hasDataIssue = task.issues.length > 0;
-
-      return (
-        <TaskListRow
-          key={`${task.id}-${index}`}
-          role="button"
-          tabIndex={0}
-          aria-label={`Request from ${task.displayCustomerName}`}
-          striped={index % 2 === 1}
-          onClick={handleSelect}
-          onKeyDown={handleKeyDown}
-        >
-          <TaskListCell column="customer">
-            <Typography variant="body2">{task.displayCustomerName}</Typography>
-            {hasDataIssue && (
-              <RemarkLabel direction="row" spacing={0.5}>
-                <WarningAmberIcon sx={{ fontSize: 14 }} />
-                <Typography variant="caption">{DATA_ISSUE_REMARK}</Typography>
-              </RemarkLabel>
-            )}
-          </TaskListCell>
-          <TaskListCell column="service">
-            <ServiceMeta direction="row" spacing={0.5}>
-              <ServiceTypeIcon serviceType={task.serviceType ?? ''} />
-              <Typography variant="body2">{task.displayServiceType}</Typography>
-            </ServiceMeta>
-          </TaskListCell>
-          <TaskListCell column="symptom">
-            <Typography variant="body2">{task.displaySymptom}</Typography>
-          </TaskListCell>
-          <TaskListCell column="requested">
-            <Typography variant="body2" color="text.secondary">
-              {task.displayCreatedAt}
-            </Typography>
-          </TaskListCell>
-          <TaskListCell column="status" align="center">
-            <StatusChip label={task.displayStatus} color={task.displayStatusColor} />
-          </TaskListCell>
-        </TaskListRow>
-      );
-    },
-    [onSelectTask]
-  );
+    return (
+      <TaskListRow
+        key={`${task.id}-${index}`}
+        role="button"
+        tabIndex={0}
+        aria-label={`Request from ${task.displayCustomerName}`}
+        striped={index % 2 === 1}
+        onClick={handleSelect}
+        onKeyDown={handleKeyDown}
+      >
+        <TaskListCell column="customer">
+          <Typography variant="body2">{task.displayCustomerName}</Typography>
+          {hasDataIssue && (
+            <RemarkLabel direction="row" spacing={0.5}>
+              <WarningAmberIcon sx={{ fontSize: 14 }} />
+              <Typography variant="caption">{DATA_ISSUE_REMARK}</Typography>
+            </RemarkLabel>
+          )}
+        </TaskListCell>
+        <TaskListCell column="service">
+          <ServiceMeta direction="row" spacing={0.5}>
+            <ServiceTypeIcon serviceType={task.serviceType ?? ''} />
+            <Typography variant="body2">{task.displayServiceType}</Typography>
+          </ServiceMeta>
+        </TaskListCell>
+        <TaskListCell column="symptom">
+          <Typography variant="body2">{task.displaySymptom}</Typography>
+        </TaskListCell>
+        <TaskListCell column="requested">
+          <Typography variant="body2" color="text.secondary">
+            {task.displayCreatedAt}
+          </Typography>
+        </TaskListCell>
+        <TaskListCell column="status" align="center">
+          <StatusChip label={task.displayStatus} color={task.displayStatusColor} />
+        </TaskListCell>
+      </TaskListRow>
+    );
+  };
 
   return (
     <Root>
@@ -171,7 +166,7 @@ const TaskList = ({ taskList, onSelectTask, isRefreshing = false }: ITaskListPro
               </TaskListCell>
             </TableRow>
           </TableHead>
-          <TableBody>{rows.map(renderRow)}</TableBody>
+          <TableBody>{taskList.map(renderRow)}</TableBody>
         </StyledTable>
       </StyledTableContainer>
       {isRefreshing && (
@@ -183,4 +178,4 @@ const TaskList = ({ taskList, onSelectTask, isRefreshing = false }: ITaskListPro
   );
 };
 
-export default memo(TaskList);
+export default TaskList;

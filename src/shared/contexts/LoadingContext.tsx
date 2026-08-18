@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useMemo, useState } from 'react';
+import { createContext, useState } from 'react';
 
 import { LoadingScreen } from '../components/LoadingScreen';
 
@@ -19,10 +19,10 @@ interface ILoadingProviderProps {
 export const LoadingProvider = ({ children }: ILoadingProviderProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const showLoading = useCallback(() => setIsLoading(true), []);
-  const hideLoading = useCallback(() => setIsLoading(false), []);
+  const showLoading = () => setIsLoading(true);
+  const hideLoading = () => setIsLoading(false);
 
-  const value = useMemo(() => ({ isLoading, showLoading, hideLoading }), [isLoading, showLoading, hideLoading]);
+  const value = { isLoading, showLoading, hideLoading };
 
   return (
     <LoadingContext.Provider value={value}>

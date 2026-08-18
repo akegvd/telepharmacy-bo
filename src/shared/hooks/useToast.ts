@@ -1,7 +1,6 @@
 'use client';
 
 import { OptionsObject, useSnackbar, VariantType } from 'notistack';
-import { useCallback } from 'react';
 
 export interface IShowToastOptions extends Omit<OptionsObject, 'variant'> {
   variant?: VariantType;
@@ -10,10 +9,7 @@ export interface IShowToastOptions extends Omit<OptionsObject, 'variant'> {
 export const useToast = () => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-  const showToast = useCallback(
-    (message: string, options?: IShowToastOptions) => enqueueSnackbar(message, options),
-    [enqueueSnackbar]
-  );
+  const showToast = (message: string, options?: IShowToastOptions) => enqueueSnackbar(message, options);
 
   return { showToast, closeToast: closeSnackbar };
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 
 import { taskKeys } from '@/shared/hooks/api/tasks/taskKeys';
 
@@ -22,12 +22,9 @@ const hasTaskList = (data: unknown): data is ICachedTaskList => {
 export const useCachedTaskListCount = (): number | null => {
   const queryClient = useQueryClient();
 
-  const subscribe = useCallback(
-    (onStoreChange: () => void) => queryClient.getQueryCache().subscribe(onStoreChange),
-    [queryClient]
-  );
+  const subscribe = (onStoreChange: () => void) => queryClient.getQueryCache().subscribe(onStoreChange);
 
-  const getTaskCount = useCallback(() => {
+  const getTaskCount = () => {
     const queryList = queryClient.getQueryCache().findAll({ queryKey: taskKeys.lists() });
 
     let latestUpdatedAt = 0;
@@ -41,7 +38,7 @@ export const useCachedTaskListCount = (): number | null => {
     }
 
     return taskCount;
-  }, [queryClient]);
+  };
 
   return useSyncExternalStore(subscribe, getTaskCount, () => null);
 };
