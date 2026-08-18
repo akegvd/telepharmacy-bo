@@ -12,7 +12,7 @@ const renderGrid = (taskList: ITransformTaskItemResponse[], isRefreshing = false
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
-      <TaskGrid taskList={taskList} isRefreshing={isRefreshing} />
+      <TaskGrid taskList={taskList} onAdvanceTask={jest.fn()} isRefreshing={isRefreshing} />
     </QueryClientProvider>
   );
 };

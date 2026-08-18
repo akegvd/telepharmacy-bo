@@ -1,6 +1,5 @@
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
-import { withQueryClient } from '@/shared/mocks/storyQueryClient';
 
 import { makeTask } from '../mocks/taskFixtures';
 
@@ -14,8 +13,10 @@ const meta: Meta<typeof TaskGrid> = {
   parameters: {
     layout: 'fullscreen',
   },
+  args: {
+    onAdvanceTask: () => {},
+  },
   decorators: [
-    withQueryClient(() => {}),
     (Story) => (
       <div style={{ maxWidth: 480, padding: 16 }}>
         <Story />

@@ -1,55 +1,24 @@
 'use client';
 
 import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
-import { useState } from 'react';
 
-import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
-import { useToast } from '@/shared/hooks/useToast';
 
 import DATA_ISSUE from '../enums/dataIssue';
-import { useUpdateTaskStatusMutation } from '../hooks/useUpdateTaskStatusMutation';
 import { ITransformTaskItemResponse } from '../types/utils/transforms/transformTaskListResponse';
 
 import { TaskSummary } from './TaskSummary';
 
 interface ITaskCardProps {
   task: ITransformTaskItemResponse;
+  onAdvance: (task: ITransformTaskItemResponse) => void;
 }
 
-export const TaskCard = ({ task }: ITaskCardProps) => {
-  const mutation = useUpdateTaskStatusMutation();
-  const { showToast } = useToast();
+export const TaskCard = ({ task, onAdvance }: ITaskCardProps) => {
   const nextStatus = task.nextStatus;
-  const [isConfirmingAdvance, setIsConfirmingAdvance] = useState(false);
-
-  const handleConfirmAdvance = () => {
-    if (!nextStatus) {
-      return;
-    }
-
-    const nextStatusLabel = task.displayNextStatus;
-    mutation.mutate(
-      { id: task.id, status: nextStatus },
-      {
-        onSuccess: () => {
-          setIsConfirmingAdvance(false);
-          showToast(`Advanced to ${nextStatusLabel}.`, { variant: 'success' });
-        },
-        onError: () => {
-          setIsConfirmingAdvance(false);
-          showToast("Couldn't update the status. Please try again.", { variant: 'error' });
-        },
-      }
-    );
-  };
 
   const handleAdvanceClick = () => {
-    setIsConfirmingAdvance(true);
-  };
-
-  const handleCancelAdvance = () => {
-    setIsConfirmingAdvance(false);
+    onAdvance(task);
   };
 
   return (
@@ -73,17 +42,6 @@ export const TaskCard = ({ task }: ITaskCardProps) => {
           </Typography>
         ) : null}
       </CardActions>
-
-      {nextStatus && (
-        <ConfirmDialog
-          open={isConfirmingAdvance}
-          title={`Advance ${task.displayCustomerName}'s request to ${task.displayNextStatus}?`}
-          confirmLabel="Confirm"
-          loading={mutation.isPending}
-          onCancel={handleCancelAdvance}
-          onConfirm={handleConfirmAdvance}
-        />
-      )}
     </Card>
   );
 };

@@ -9,6 +9,7 @@ import { TaskCard } from './TaskCard';
 
 interface ITaskGridProps {
   taskList: ITransformTaskItemResponse[];
+  onAdvanceTask: (task: ITransformTaskItemResponse) => void;
   isRefreshing?: boolean;
 }
 
@@ -34,13 +35,13 @@ const RefreshOverlay = styled(Stack)(({ theme }) => ({
   pointerEvents: 'none',
 }));
 
-const TaskGrid = ({ taskList, isRefreshing = false }: ITaskGridProps) => {
+const TaskGrid = ({ taskList, onAdvanceTask, isRefreshing = false }: ITaskGridProps) => {
   return (
     <Root>
       <ScrollArea>
         <Stack spacing={1.5}>
           {taskList.map((task, index) => (
-            <TaskCard key={`${task.id}-${index}`} task={task} />
+            <TaskCard key={`${task.id}-${index}`} task={task} onAdvance={onAdvanceTask} />
           ))}
         </Stack>
       </ScrollArea>

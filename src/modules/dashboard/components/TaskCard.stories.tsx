@@ -1,6 +1,5 @@
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
-import { withQueryClient } from '@/shared/mocks/storyQueryClient';
 
 import DATA_ISSUE from '../enums/dataIssue';
 import { makeTask } from '../mocks/taskFixtures';
@@ -12,8 +11,10 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 const meta: Meta<typeof TaskCard> = {
   component: TaskCard,
   title: 'Dashboard/TaskCard',
+  args: {
+    onAdvance: () => {},
+  },
   decorators: [
-    withQueryClient(() => {}),
     (Story) => (
       <div style={{ width: 360 }}>
         <Story />

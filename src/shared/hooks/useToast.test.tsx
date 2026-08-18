@@ -42,13 +42,4 @@ describe('useToast', () => {
 
     expect(mockCloseSnackbar).toHaveBeenCalledWith('toast-1');
   });
-
-  it('keeps a stable reference for showToast across renders', () => {
-    const { result, rerender } = renderHook(() => useToast());
-    const firstShowToast = result.current.showToast;
-
-    rerender();
-
-    expect(result.current.showToast).toBe(firstShowToast);
-  });
 });

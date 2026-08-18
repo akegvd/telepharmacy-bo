@@ -3,9 +3,10 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
 
+import { SnackbarProvider } from '@/shared/components/SnackbarProvider';
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
-import { fetchTaskList } from '@/shared/services/api/tasks';
+import { fetchTaskList, updateTaskStatus } from '@/shared/services/api/tasks';
 import { ITaskItemResponse } from '@/shared/types/api/tasks';
 
 import { typeDateField } from '../mocks/datePickerField';
@@ -13,6 +14,7 @@ import { typeDateField } from '../mocks/datePickerField';
 jest.mock('@/shared/services/api/tasks');
 
 const mockFetchTaskList = fetchTaskList as jest.MockedFunction<typeof fetchTaskList>;
+const mockUpdateTaskStatus = updateTaskStatus as jest.MockedFunction<typeof updateTaskStatus>;
 
 const makeRawTask = (overrides: Partial<ITaskItemResponse> = {}): ITaskItemResponse => {
   return {
@@ -41,14 +43,24 @@ const renderDashboard = () => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
-      <Dashboard />
+      <SnackbarProvider>
+        <Dashboard />
+      </SnackbarProvider>
     </QueryClientProvider>
   );
+};
+
+// The card grid is the only view with inline advance actions, so the advance flow
+// is driven through it.
+const renderCardView = () => {
+  window.localStorage.setItem('dashboard:taskListViewMode', JSON.stringify('grid'));
+  return renderDashboard();
 };
 
 describe('Dashboard', () => {
   beforeEach(() => {
     mockFetchTaskList.mockReset();
+    mockUpdateTaskStatus.mockReset();
     mockPush.mockClear();
     mockReplace.mockClear();
     searchParams = new URLSearchParams();
@@ -279,6 +291,106 @@ describe('Dashboard', () => {
     renderDashboard();
 
     expect(await screen.findByText('Reason for consultation')).toBeInTheDocument();
+  });
+
+  it('mounts a single confirm dialog for the whole card grid', async () => {
+    const user = userEvent.setup();
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+      makeRawTask({ id: '2', customerName: 'Nutcha R.', status: TASK_STATUS.NEW }),
+    ]);
+
+    renderCardView();
+
+    await screen.findByText('Somchai P.');
+    expect(screen.queryAllByRole('dialog')).toHaveLength(0);
+
+    await user.click(screen.getAllByRole('button', { name: 'Advance to In progress' })[0]);
+
+    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+  });
+
+  it('asks for confirmation before advancing a task status', async () => {
+    const user = userEvent.setup();
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+    ]);
+
+    renderCardView();
+
+    await screen.findByText('Somchai P.');
+    await user.click(screen.getByRole('button', { name: 'Advance to In progress' }));
+
+    expect(mockUpdateTaskStatus).not.toHaveBeenCalled();
+    expect(screen.getByText("Advance Somchai P.'s request to In progress?")).toBeInTheDocument();
+  });
+
+  it('does not advance the task status when the confirmation is cancelled', async () => {
+    const user = userEvent.setup();
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+    ]);
+
+    renderCardView();
+
+    await screen.findByText('Somchai P.');
+    await user.click(screen.getByRole('button', { name: 'Advance to In progress' }));
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(mockUpdateTaskStatus).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.queryByText("Advance Somchai P.'s request to In progress?")).not.toBeInTheDocument();
+    });
+  });
+
+  it('advances the task status and shows a success toast after confirming', async () => {
+    const user = userEvent.setup();
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+    ]);
+    mockUpdateTaskStatus.mockResolvedValue(makeRawTask({ id: '1', status: TASK_STATUS.IN_PROGRESS }));
+
+    renderCardView();
+
+    await screen.findByText('Somchai P.');
+    await user.click(screen.getByRole('button', { name: 'Advance to In progress' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+    expect(mockUpdateTaskStatus).toHaveBeenCalledWith('1', TASK_STATUS.IN_PROGRESS, undefined);
+    expect(await screen.findByText('Advanced to In progress.')).toBeInTheDocument();
+  });
+
+  it('shows an error toast when the status update fails', async () => {
+    const user = userEvent.setup();
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+    ]);
+    mockUpdateTaskStatus.mockRejectedValue(new Error('network error'));
+
+    renderCardView();
+
+    await screen.findByText('Somchai P.');
+    await user.click(screen.getByRole('button', { name: 'Advance to In progress' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+    expect(await screen.findByText("Couldn't update the status. Please try again.")).toBeInTheDocument();
+  });
+
+  it('advances the task status from the detail modal', async () => {
+    const user = userEvent.setup();
+    searchParams = new URLSearchParams({ taskId: '1' });
+    mockFetchTaskList.mockResolvedValue([
+      makeRawTask({ id: '1', customerName: 'Somchai P.', status: TASK_STATUS.NEW }),
+    ]);
+    mockUpdateTaskStatus.mockResolvedValue(makeRawTask({ id: '1', status: TASK_STATUS.IN_PROGRESS }));
+
+    renderDashboard();
+
+    await user.click(await screen.findByRole('button', { name: 'Advance to In progress' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+    expect(mockUpdateTaskStatus).toHaveBeenCalledWith('1', TASK_STATUS.IN_PROGRESS, undefined);
+    expect(await screen.findByText('Advanced to In progress.')).toBeInTheDocument();
   });
 
   it('stops polling while paused and refetches immediately on resume', async () => {

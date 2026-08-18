@@ -1,5 +1,4 @@
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
-import { withQueryClient } from '@/shared/mocks/storyQueryClient';
 
 import DATA_ISSUE from '../enums/dataIssue';
 import { makeTask } from '../mocks/taskFixtures';
@@ -9,18 +8,16 @@ import { TaskDetailContent } from './TaskDetailContent';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-// No mock API in Storybook — useUpdateTaskStatusMutation only needs a
-// QueryClient to exist, it doesn't read any seeded data.
-const withMutationClient = withQueryClient(() => {});
-
 const meta: Meta<typeof TaskDetailContent> = {
   component: TaskDetailContent,
   title: 'Dashboard/TaskDetailContent',
   parameters: {
     layout: 'centered',
   },
+  args: {
+    onAdvance: () => {},
+  },
   decorators: [
-    withMutationClient,
     (Story) => (
       <div style={{ width: 480 }}>
         <Story />

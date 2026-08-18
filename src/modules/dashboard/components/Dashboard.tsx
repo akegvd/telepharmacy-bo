@@ -4,12 +4,16 @@ import { Alert, Box, Container, Divider, Paper, Stack, styled, Typography } from
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
+import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import { Modal } from '@/shared/components/Modal';
 import { SearchResultWrapper } from '@/shared/components/SearchResultWrapper';
+import { useToast } from '@/shared/hooks/useToast';
 
 import { taskListAutoRefreshIntervalMs } from '../constants/taskList';
 import { useTaskListQuery } from '../hooks/useTaskListQuery';
 import { useTaskListViewMode } from '../hooks/useTaskListViewMode';
+import { useUpdateTaskStatusMutation } from '../hooks/useUpdateTaskStatusMutation';
+import { ITransformTaskItemResponse } from '../types/utils/transforms/transformTaskListResponse';
 
 import { AutoRefreshControl } from './AutoRefreshControl';
 import FilterBar from './FilterBar';
@@ -54,6 +58,8 @@ const ControlsGroup = styled(Stack)(({ theme }) => ({
 const Dashboard = () => {
   const { replace, push } = useRouter();
   const searchParams = useSearchParams();
+  const { showToast } = useToast();
+  const advanceMutation = useUpdateTaskStatusMutation();
   const [isAutoRefreshPaused, setIsAutoRefreshPaused] = useState(false);
   const [viewMode, setViewMode] = useTaskListViewMode();
 
@@ -78,6 +84,13 @@ const Dashboard = () => {
   // exit transition before the param (and the taskFromUrl content behind it) is cleared.
   // Initialized from taskId to support opening straight from a deep link.
   const [isTaskDetailOpen, setIsTaskDetailOpen] = useState(!!taskId);
+
+  // A single confirm dialog serves every advance action on the page — the card grid, the
+  // list and the detail modal all raise `onAdvance` and this owns the mutation. Same
+  // open/content split as the detail modal above: the task outlives the closing
+  // transition so the title doesn't blank out mid-animation.
+  const [advancingTask, setAdvancingTask] = useState<ITransformTaskItemResponse | null>(null);
+  const [isConfirmingAdvance, setIsConfirmingAdvance] = useState(false);
 
   const updateParam = (key: string, value: string, emptyValue: string) => {
     const params = new URLSearchParams(searchParams);
@@ -114,6 +127,40 @@ const Dashboard = () => {
     const params = new URLSearchParams(searchParams);
     params.delete('taskId');
     push(`/?${params.toString()}`, { scroll: false });
+  };
+
+  const handleAdvanceTask = (task: ITransformTaskItemResponse) => {
+    setAdvancingTask(task);
+    setIsConfirmingAdvance(true);
+  };
+
+  const handleCancelAdvance = () => {
+    setIsConfirmingAdvance(false);
+  };
+
+  const handleAdvanceExited = () => {
+    setAdvancingTask(null);
+  };
+
+  const handleConfirmAdvance = () => {
+    if (!advancingTask?.nextStatus) {
+      return;
+    }
+
+    const nextStatusLabel = advancingTask.displayNextStatus;
+    advanceMutation.mutate(
+      { id: advancingTask.id, status: advancingTask.nextStatus },
+      {
+        onSuccess: () => {
+          setIsConfirmingAdvance(false);
+          showToast(`Advanced to ${nextStatusLabel}.`, { variant: 'success' });
+        },
+        onError: () => {
+          setIsConfirmingAdvance(false);
+          showToast("Couldn't update the status. Please try again.", { variant: 'error' });
+        },
+      }
+    );
   };
 
   const handleTogglePause = () => {
@@ -184,7 +231,7 @@ const Dashboard = () => {
                   {hasActiveFilters ? 'No requests match your filters.' : 'No consultation requests yet.'}
                 </Alert>
               ) : viewMode === 'grid' ? (
-                <TaskGrid taskList={data.taskList} isRefreshing={isRefetching} />
+                <TaskGrid taskList={data.taskList} onAdvanceTask={handleAdvanceTask} isRefreshing={isRefetching} />
               ) : (
                 <TaskList taskList={data.taskList} onSelectTask={handleSelectTask} isRefreshing={isRefetching} />
               )}
@@ -194,8 +241,20 @@ const Dashboard = () => {
       </Stack>
 
       <Modal open={isTaskDetailOpen} onClose={handleTaskDetailClose} onExited={handleTaskDetailExited}>
-        {taskFromUrl && <TaskDetailContent task={taskFromUrl} />}
+        {taskFromUrl && <TaskDetailContent task={taskFromUrl} onAdvance={handleAdvanceTask} />}
       </Modal>
+
+      {advancingTask && (
+        <ConfirmDialog
+          open={isConfirmingAdvance}
+          title={`Advance ${advancingTask.displayCustomerName}'s request to ${advancingTask.displayNextStatus}?`}
+          confirmLabel="Confirm"
+          loading={advanceMutation.isPending}
+          onCancel={handleCancelAdvance}
+          onConfirm={handleConfirmAdvance}
+          onExited={handleAdvanceExited}
+        />
+      )}
     </Container>
   );
 };
