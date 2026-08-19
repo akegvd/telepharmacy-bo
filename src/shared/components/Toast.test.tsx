@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CustomContentProps, useSnackbar } from 'notistack';
 
-import { Toast } from './Toast';
+import Toast from './Toast';
 
 jest.mock('notistack', () => ({
   ...jest.requireActual('notistack'),

@@ -4,7 +4,7 @@ import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import { Button } from '@mui/material';
 
 import NextLink from './NextLink';
-import { StatusPage } from './StatusPage';
+import StatusPage from './StatusPage';
 
 export interface IAppError extends Error {
   digest?: string;
@@ -15,7 +15,7 @@ interface IErrorPageProps {
   reset: () => void;
 }
 
-export const ErrorPage = ({ error, reset }: IErrorPageProps) => {
+const ErrorPage = ({ error, reset }: IErrorPageProps) => {
   return (
     <StatusPage
       tone="error"
@@ -33,3 +33,5 @@ export const ErrorPage = ({ error, reset }: IErrorPageProps) => {
     </StatusPage>
   );
 };
+
+export default ErrorPage;

@@ -4,7 +4,7 @@ import { Container, Stack, styled } from '@mui/material';
 import { Suspense } from 'react';
 
 import Dashboard from '@/modules/dashboard/components/Dashboard';
-import { LoadingSpinner } from '@/shared/components/LoadingSpinner';
+import LoadingSpinner from '@/shared/components/LoadingSpinner';
 
 const Fallback = styled(Stack)({
   alignItems: 'center',

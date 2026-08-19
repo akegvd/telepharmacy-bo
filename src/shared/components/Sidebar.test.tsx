@@ -7,7 +7,7 @@ jest.mock('next/navigation', () => ({
   usePathname: () => pathname,
 }));
 
-import { Sidebar } from './Sidebar';
+import Sidebar from './Sidebar';
 
 describe('Sidebar', () => {
   beforeEach(() => {

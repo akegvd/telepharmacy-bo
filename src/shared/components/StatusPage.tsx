@@ -64,7 +64,7 @@ const Actions = styled(Stack)({
   justifyContent: 'center',
 });
 
-export const StatusPage = ({
+const StatusPage = ({
   icon,
   tone = 'primary',
   code,
@@ -110,3 +110,5 @@ export const StatusPage = ({
     </Root>
   );
 };
+
+export default StatusPage;

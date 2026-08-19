@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import { NotFoundPage } from './NotFoundPage';
+import NotFoundPage from './NotFoundPage';
 
 describe('NotFoundPage', () => {
   it('renders the 404 heading and a link back to the dashboard', () => {

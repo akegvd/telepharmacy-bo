@@ -1,6 +1,6 @@
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 
-import { ServiceTypeIcon } from './ServiceTypeIcon';
+import ServiceTypeIcon from './ServiceTypeIcon';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

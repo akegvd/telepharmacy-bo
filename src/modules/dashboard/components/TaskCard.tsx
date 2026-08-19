@@ -11,13 +11,13 @@ import DATA_ISSUE from '../enums/dataIssue';
 import { useUpdateTaskStatusMutation } from '../hooks/useUpdateTaskStatusMutation';
 import { ITransformTaskItemResponse } from '../types/utils/transforms/transformTaskListResponse';
 
-import { TaskSummary } from './TaskSummary';
+import TaskSummary from './TaskSummary';
 
 interface ITaskCardProps {
   task: ITransformTaskItemResponse;
 }
 
-export const TaskCard = ({ task }: ITaskCardProps) => {
+const TaskCard = ({ task }: ITaskCardProps) => {
   const mutation = useUpdateTaskStatusMutation();
   const { showToast } = useToast();
   const nextStatus = task.nextStatus;
@@ -87,3 +87,5 @@ export const TaskCard = ({ task }: ITaskCardProps) => {
     </Card>
   );
 };
+
+export default TaskCard;

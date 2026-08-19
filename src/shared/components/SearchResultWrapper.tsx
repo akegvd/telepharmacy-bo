@@ -1,7 +1,7 @@
 import { Alert, Stack, styled, Typography } from '@mui/material';
 import { ReactNode } from 'react';
 
-import { LoadingSpinner } from './LoadingSpinner';
+import LoadingSpinner from './LoadingSpinner';
 
 interface ISearchResultWrapperProps {
   isLoading: boolean;
@@ -36,7 +36,7 @@ const RetryButton = styled('button')({
   font: 'inherit',
 });
 
-export const SearchResultWrapper = ({
+const SearchResultWrapper = ({
   isLoading,
   isError = false,
   isEmpty = false,
@@ -85,3 +85,5 @@ export const SearchResultWrapper = ({
 
   return <>{children}</>;
 };
+
+export default SearchResultWrapper;

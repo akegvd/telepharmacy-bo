@@ -5,13 +5,13 @@ import { ReactNode } from 'react';
 
 import { SNACKBAR_ANCHOR_ORIGIN, SNACKBAR_AUTO_HIDE_DURATION, SNACKBAR_MAX_SNACK } from '@/shared/constants/snackbar';
 
-import { Toast } from './Toast';
+import Toast from './Toast';
 
 interface ISnackbarProviderProps {
   children: ReactNode;
 }
 
-export const SnackbarProvider = ({ children }: ISnackbarProviderProps) => {
+const SnackbarProvider = ({ children }: ISnackbarProviderProps) => {
   return (
     <NotistackSnackbarProvider
       maxSnack={SNACKBAR_MAX_SNACK}
@@ -29,3 +29,5 @@ export const SnackbarProvider = ({ children }: ISnackbarProviderProps) => {
     </NotistackSnackbarProvider>
   );
 };
+
+export default SnackbarProvider;

@@ -16,7 +16,9 @@ interface IServiceTypeIconProps extends SvgIconProps {
   serviceType: string;
 }
 
-export const ServiceTypeIcon = ({ serviceType, ...props }: IServiceTypeIconProps) => {
+const ServiceTypeIcon = ({ serviceType, ...props }: IServiceTypeIconProps) => {
   const Icon = ICONS[serviceType] ?? HelpOutlineOutlinedIcon;
   return <Icon fontSize="small" {...props} />;
 };
+
+export default ServiceTypeIcon;

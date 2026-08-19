@@ -1,6 +1,6 @@
 import { Typography } from '@mui/material';
 
-import { SearchResultWrapper } from './SearchResultWrapper';
+import SearchResultWrapper from './SearchResultWrapper';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

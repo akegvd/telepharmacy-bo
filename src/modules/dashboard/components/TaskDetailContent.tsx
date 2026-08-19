@@ -11,7 +11,7 @@ import DATA_ISSUE from '../enums/dataIssue';
 import { useUpdateTaskStatusMutation } from '../hooks/useUpdateTaskStatusMutation';
 import { ITransformTaskItemResponse } from '../types/utils/transforms/transformTaskListResponse';
 
-import { TaskSummary } from './TaskSummary';
+import TaskSummary from './TaskSummary';
 
 interface ITaskDetailContentProps {
   task: ITransformTaskItemResponse;
@@ -21,7 +21,7 @@ const Footer = styled(Stack)({
   justifyContent: 'flex-end',
 });
 
-export const TaskDetailContent = ({ task }: ITaskDetailContentProps) => {
+const TaskDetailContent = ({ task }: ITaskDetailContentProps) => {
   const mutation = useUpdateTaskStatusMutation();
   const { showToast } = useToast();
   const nextStatus = task.nextStatus;
@@ -89,3 +89,5 @@ export const TaskDetailContent = ({ task }: ITaskDetailContentProps) => {
     </Stack>
   );
 };
+
+export default TaskDetailContent;

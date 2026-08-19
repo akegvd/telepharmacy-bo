@@ -1,4 +1,4 @@
-import { TaskListViewToggle } from './TaskListViewToggle';
+import TaskListViewToggle from './TaskListViewToggle';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

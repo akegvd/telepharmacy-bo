@@ -1,4 +1,4 @@
-import { StatusChip } from './StatusChip';
+import StatusChip from './StatusChip';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

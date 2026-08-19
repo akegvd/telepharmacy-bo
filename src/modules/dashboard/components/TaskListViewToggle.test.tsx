@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { TaskListViewToggle } from './TaskListViewToggle';
+import TaskListViewToggle from './TaskListViewToggle';
 
 describe('TaskListViewToggle', () => {
   it('marks the current view as selected', () => {

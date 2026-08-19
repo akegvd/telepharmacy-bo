@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import { StatusPage } from './StatusPage';
+import StatusPage from './StatusPage';
 
 describe('StatusPage', () => {
   it('renders the title, description, and icon', () => {

@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { createElement, ReactNode } from 'react';
 
-import { LoadingProvider } from '../contexts/LoadingContext';
+import LoadingProvider from '../contexts/LoadingContext';
 
 import { useLoading } from './useLoading';
 

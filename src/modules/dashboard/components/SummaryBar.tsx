@@ -104,7 +104,7 @@ const SummaryStat = ({ value, label, color }: ISummaryStatProps) => {
   );
 };
 
-export const SummaryBar = ({ summary }: ISummaryBarProps) => {
+const SummaryBar = ({ summary }: ISummaryBarProps) => {
   return (
     <Root spacing={0.5}>
       {summary.flaggedCount > 0 && (
@@ -135,3 +135,5 @@ export const SummaryBar = ({ summary }: ISummaryBarProps) => {
     </Root>
   );
 };
+
+export default SummaryBar;

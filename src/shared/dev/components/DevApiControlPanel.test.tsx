@@ -4,14 +4,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { SnackbarProvider } from '@/shared/components/SnackbarProvider';
+import SnackbarProvider from '@/shared/components/SnackbarProvider';
 import SERVICE_TYPE from '@/shared/enums/api/tasks/serviceType';
 import TASK_STATUS from '@/shared/enums/api/tasks/status';
 import { taskKeys } from '@/shared/hooks/api/tasks/taskKeys';
 import { createRandomTask, resetTaskList } from '@/shared/services/api/tasks';
 import { ITaskItemResponse } from '@/shared/types/api/tasks';
 
-import { DevApiControlPanel } from './DevApiControlPanel';
+import DevApiControlPanel from './DevApiControlPanel';
 
 jest.mock('@/shared/services/api/tasks');
 

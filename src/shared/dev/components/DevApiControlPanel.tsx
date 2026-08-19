@@ -125,10 +125,12 @@ export const DevApiControlPanelContent = () => {
   );
 };
 
-export const DevApiControlPanel = () => {
+const DevApiControlPanel = () => {
   if (process.env.NEXT_PUBLIC_ENABLE_DEV_API_CONTROLS !== 'true') {
     return null;
   }
 
   return <DevApiControlPanelContent />;
 };
+
+export default DevApiControlPanel;

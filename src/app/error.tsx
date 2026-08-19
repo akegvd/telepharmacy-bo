@@ -1,6 +1,6 @@
 'use client';
 
-import { ErrorPage, IAppError } from '@/shared/components/ErrorPage';
+import ErrorPage, { IAppError } from '@/shared/components/ErrorPage';
 
 interface IErrorProps {
   error: IAppError;

@@ -1,4 +1,4 @@
-import { ErrorPage } from './ErrorPage';
+import ErrorPage from './ErrorPage';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 

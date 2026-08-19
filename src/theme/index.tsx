@@ -8,7 +8,7 @@ interface IAppThemeProviderProps {
   children: React.ReactNode;
 }
 
-export const AppThemeProvider = ({ children }: IAppThemeProviderProps) => {
+const AppThemeProvider = ({ children }: IAppThemeProviderProps) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -16,3 +16,5 @@ export const AppThemeProvider = ({ children }: IAppThemeProviderProps) => {
     </ThemeProvider>
   );
 };
+
+export default AppThemeProvider;

@@ -12,7 +12,7 @@ interface ITaskListViewToggleProps {
   onChange: (viewMode: TTaskListViewMode) => void;
 }
 
-export const TaskListViewToggle = ({ value, onChange }: ITaskListViewToggleProps) => {
+const TaskListViewToggle = ({ value, onChange }: ITaskListViewToggleProps) => {
   const handleChange = useCallback(
     (_event: React.MouseEvent<HTMLElement>, next: TTaskListViewMode | null) => {
       if (next) {
@@ -33,3 +33,5 @@ export const TaskListViewToggle = ({ value, onChange }: ITaskListViewToggleProps
     </ToggleButtonGroup>
   );
 };
+
+export default TaskListViewToggle;

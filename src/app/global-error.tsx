@@ -1,7 +1,7 @@
 'use client';
 
-import { ErrorPage, IAppError } from '@/shared/components/ErrorPage';
-import { AppThemeProvider } from '@/theme';
+import ErrorPage, { IAppError } from '@/shared/components/ErrorPage';
+import AppThemeProvider from '@/theme';
 
 interface IGlobalErrorProps {
   error: IAppError;
